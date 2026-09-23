@@ -1,0 +1,19 @@
+[package]
+name = "mcl_graph_nif"
+version = "0.1.0"
+edition = "2021"
+description = "CozoDB NIF for mcl-graph: embeddable relational-graph database"
+license = "Apache-2.0"
+
+[lib]
+name = "mcl_graph_nif"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.38"
+cozo = { version = "0.7", features = ["storage-rocksdb"] }
+serde_json = "1.0"
+
+[profile.release]
+lto = true
+opt-level = 3

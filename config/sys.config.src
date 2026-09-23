@@ -1,0 +1,43 @@
+%% Substituted by relx at boot: every ${VAR} must resolve or the node does not
+%% start. That is the right failure. A service with a half-configured realm
+%% announces itself where nobody can attribute it, and looks healthy.
+[
+    {mcl_graph, [
+        %% The realm NAME the topics carry (io.macula). MCL_REALM is its sha256
+        %% tag; the service refuses to start unless they agree.
+        {realm_name, "${MCL_REALM_NAME}"},
+        %% CozoDB's RocksDB directory: a volume, on a bulk drive on a fleet node.
+        {data_dir, "${MCL_DATA_DIR}"}
+    ]},
+    {mcl_om, [
+        %% The node identity: the caller every CALL this service makes carries,
+        %% the publisher of every fact, and the key its advertisements are signed
+        %% with. Without the path mcl_om refuses to start rather than run on a
+        %% throwaway identity nobody can list. ON A PERSISTENT VOLUME.
+        {identity_key_path, "/etc/mcl/secrets/identity.key"},
+        {health_port,       ${MCL_HEALTH_PORT}},
+        {capability_topic,  <<"_mesh.cap.">>},
+        %% One org per service, named after the repo: callers reach the desks as
+        %% `mcl-graph/<name>'. Fixed, not deploy config.
+        {org,               <<"mcl-graph">>},
+        {service_name,      <<"mcl-graph">>},
+        %% The realm tag, as an APPLICATION ENV: mcl_om reads
+        %% application:get_env(mcl_om, realm), and nothing translates a shell
+        %% variable into it but this line.
+        {realm,             <<"${MCL_REALM}">>},
+        %% ⚠ THE TRUST ANCHOR, NOT OPTIONAL: the realm's public signing key, hex.
+        %% mcl_om pins it as macula's `realm_trust'. Without it every
+        %% org-namespaced advertisement is refused, the boot claim never reaches
+        %% the realm, and the node stays green while unreachable. Public
+        %% material, not a secret.
+        {realm_key,         <<"${MCL_REALM_KEY}">>}
+    ]},
+    %% ⚠ MANDATORY. Without the pq_hybrid profile the node boots classical and
+    %% every PQ station closes the handshake, forever, silently. No
+    %% `puzzle_difficulty': macula 12 makes it one fleet constant and refuses the
+    %% setting.
+    {macula, [
+        {crypto_profile, pq_hybrid}
+    ]},
+    {kernel, [{logger_level, info}]}
+].

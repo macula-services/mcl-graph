@@ -1,0 +1,12 @@
+_build/
+rebar.lock
+*.beam
+erl_crash.dump
+_checkouts/
+rebar3.crashdump
+data/
+
+# The NIF: built from source into the app's priv/ on every compile, never
+# committed. Cargo.lock IS committed (the Cargo convention for a cdylib).
+native/**/target/
+apps/mcl_graph/priv/

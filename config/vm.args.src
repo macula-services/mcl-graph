@@ -1,0 +1,9 @@
+## Node identity and runtime flags for mcl_graph.
+-name ${MCL_NODE_NAME}@${MCL_NODE_HOST}
+-setcookie ${MCL_COOKIE}
+
++K true
+
+## Async threads for file I/O. The CozoDB NIF runs on dirty IO schedulers,
+## which this flag does not size.
++A 8

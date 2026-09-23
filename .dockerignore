@@ -1,0 +1,6 @@
+# The build context is the source. Host builds (a glibc NIF, cargo's target/,
+# _build) must not reach the musl builder.
+_build/
+native/*/target/
+apps/*/priv/
+.git/

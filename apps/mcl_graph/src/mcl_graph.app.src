@@ -1,0 +1,21 @@
+{application, mcl_graph, [
+    {description, "Embeddable relational-graph database (CozoDB) as a mesh service"},
+    {vsn, "0.1.0"},
+    {registered, [mcl_graph_sup, mcl_graph_store, learn_truths_from_mesh]},
+    {mod, {mcl_graph_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        crypto,
+        %% Mesh SDK, realm identity, capabilities, health.
+        mcl_om
+    ]},
+    {env, [
+        %% Where CozoDB keeps its RocksDB files. The release sets it from
+        %% MCL_DATA_DIR; this default is what a laptop wants.
+        {data_dir, "/tmp/mcl_graph"}
+    ]},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, [{"GitHub", "https://github.com/macula-services/mcl-graph"}]}
+]}.
