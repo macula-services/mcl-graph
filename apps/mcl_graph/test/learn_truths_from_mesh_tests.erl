@@ -81,6 +81,55 @@ subscriber_test_() ->
              end
      end}.
 
+%% A pool killed without saying so (no macula_event_gone) must not leave the
+%% subscriber holding a subscription that delivers nothing: it resubscribes on
+%% the pool that replaced it.
+pool_death_test_() ->
+    {setup,
+     fun() ->
+             ok = application:set_env(mcl_graph, realm_name, "io.macula"),
+             Pool1 = spawn(fun() -> receive stop -> ok end end),
+             Pool2 = spawn(fun() -> receive stop -> ok end end),
+             persistent_term:put({?MODULE, pool}, Pool1),
+             meck:new(mcl_om, [non_strict]),
+             meck:new(macula, [non_strict]),
+             meck:expect(mcl_om, mesh_handles,
+                         fun() -> {ok, persistent_term:get({?MODULE, pool}), <<0:256>>} end),
+             meck:expect(macula, subscribe, fun(_, _, _, _) -> {ok, make_ref()} end),
+             {ok, Pid} = learn_truths_from_mesh:start_link(),
+             unlink(Pid),
+             {Pid, Pool1, Pool2}
+     end,
+     fun({Pid, _Pool1, Pool2}) ->
+             exit(Pid, shutdown),
+             Pool2 ! stop,
+             meck:unload(macula), meck:unload(mcl_om),
+             persistent_term:erase({?MODULE, pool}),
+             application:unset_env(mcl_graph, realm_name)
+     end,
+     fun({Pid, Pool1, Pool2}) ->
+             fun() ->
+                     ok = until(fun() -> subscribed_on() =:= [Pool1] end),
+                     persistent_term:put({?MODULE, pool}, Pool2),
+                     exit(Pool1, kill),
+                     ok = until(fun() -> lists:member(Pool2, subscribed_on()) end),
+                     ?assert(is_process_alive(Pid)),
+                     ?assert(learn_truths_from_mesh:subscribed())
+             end
+     end}.
+
+subscribed_on() ->
+    [Pool || {_, {macula, subscribe, [Pool | _]}, {ok, _}} <- meck:history(macula)].
+
+until(Check) -> until(Check, 40).
+
+until(_Check, 0) -> timeout;
+until(Check, N) ->
+    case Check() of
+        true -> ok;
+        false -> timer:sleep(50), until(Check, N - 1)
+    end.
+
 %% Health must not wait on a subscriber busy learning a burst of facts.
 subscribed_is_read_without_the_subscriber_test() ->
     ?assertNot(learn_truths_from_mesh:subscribed()).

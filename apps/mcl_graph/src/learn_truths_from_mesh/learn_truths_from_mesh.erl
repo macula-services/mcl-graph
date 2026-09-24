@@ -16,7 +16,8 @@
 %%% `publisher_verified => false', and it is refused here. An actively invalid
 %%% signature is a stronger negative signal than none.
 %%%
-%%% Re-subscribes when the subscription goes away; waits while the mesh is dark.
+%%% Re-subscribes when the subscription goes away, or when the pool it lives on
+%%% dies without saying so; waits while the mesh is dark.
 %%% A fact that is not a map is refused: any realm member may publish any
 %%% admissible term, and one that crashed this process could stop the node.
 -module(learn_truths_from_mesh).
@@ -31,7 +32,10 @@
 -define(HELD, {?MODULE, held}).
 -define(VERIFIED_CONFIDENCE, 0.7).
 
--record(st, {sub :: reference() | undefined}).
+-record(st, {sub :: reference() | undefined,
+             %% The pool the subscription lives on, watched: a pool that is
+             %% killed sends no macula_event_gone (macula#26).
+             pool_mon :: reference() | undefined}).
 
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
@@ -63,9 +67,10 @@ handle_info({macula_event, _Ref, Topic, Payload, Meta}, St) ->
     ok = on_fact(Topic, Payload, Meta),
     {noreply, St};
 handle_info({macula_event_gone, Ref, _Reason}, #st{sub = Ref} = St) ->
-    held(false),
-    self() ! subscribe,
-    {noreply, St#st{sub = undefined}};
+    {noreply, lost(St)};
+handle_info({'DOWN', Mon, process, _Pool, Reason}, #st{pool_mon = Mon} = St) ->
+    logger:warning("learn_truths_from_mesh: the pool went down (~p); resubscribing", [Reason]),
+    {noreply, lost(St)};
 handle_info(_Info, St) ->
     {noreply, St}.
 
@@ -84,7 +89,8 @@ held(Held) ->
 %% weather, not a fault here, so it is retried rather than spent on restarts.
 subscribe({ok, Pool, Realm}, St) ->
     Topic = mcl_graph_facts:topic(mcl_graph_facts:realm_name(), truth_asserted),
-    subscribed(pool_call(fun() -> macula:subscribe(Pool, Realm, Topic, self()) end), Topic, St);
+    subscribed(pool_call(fun() -> macula:subscribe(Pool, Realm, Topic, self()) end), Topic,
+               St#st{pool_mon = erlang:monitor(process, Pool)});
 subscribe({error, mesh_unavailable}, St) ->
     retry(St).
 
@@ -93,7 +99,18 @@ subscribed({ok, Ref}, _Topic, St) ->
     St#st{sub = Ref};
 subscribed(Error, Topic, St) ->
     logger:warning("learn_truths_from_mesh: subscribing to ~ts failed, retrying: ~p", [Topic, Error]),
-    retry(St).
+    retry(unwatched(St)).
+
+%% The subscription is gone: stop watching its pool and subscribe again, now.
+lost(St) ->
+    held(false),
+    self() ! subscribe,
+    unwatched(St#st{sub = undefined}).
+
+unwatched(#st{pool_mon = undefined} = St) -> St;
+unwatched(#st{pool_mon = Mon} = St) ->
+    erlang:demonitor(Mon, [flush]),
+    St#st{pool_mon = undefined}.
 
 pool_call(Call) ->
     try Call() catch exit:Reason -> {error, {pool_gone, Reason}} end.

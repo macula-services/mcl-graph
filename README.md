@@ -24,6 +24,7 @@ org. Until then the node is healthy and nothing can reach it.
 | `learn_link` | `subject`, `predicate`, `object`, and optionally `confidence` (default 1.0), `metadata` and `asserted_by` | `link_id`, `entities_new` |
 | `narrate_entity` | `entity_id` | `entity_id`, `prose` |
 | `narrate_link` | same as `resolve_link` | `subject`, `prose` |
+| `info` | none | name, version, description, org, node id, health, the procedures above (added by mcl_om to every service) |
 
 Facts, on app-tier topics under the graph's org, for example
 `io.macula/mcl-graph/graph/knowledge/link_learned_v1`:

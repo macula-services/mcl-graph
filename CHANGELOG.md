@@ -7,11 +7,22 @@ Versioning: [SemVer](https://semver.org/).
 
 ### Changed
 
+- **mcl_om 0.28 and macula 12.2.** Under macula 12.2 a publisher that died
+  took the publishing process with it on mcl_om 0.27; 0.28 contains that. The
+  service also answers `mcl-graph/info` (name, version, org, node id, health,
+  procedures), which mcl_om 0.28 adds to every service.
 - **mcl_om 0.27.** Its boot claim carries `MCL_SERVICE_NAME` and `MCL_BOX`,
   which the realm's operator needs to see to admit it. The compose file sets
   both, with `MCL_BOX` required. 0.27 no longer brings the erlang rocksdb
   binding, so the system rocksdb codec packages are gone from the builder, the
   runtime image and CI; the NIF's own RocksDB has its codecs linked in.
+
+### Fixed
+
+- **The truths subscriber survives a pool that dies without saying so.** A pool
+  that is killed sends no `macula_event_gone`, so the subscriber held a
+  subscription that delivered nothing while `/health` said it was hearing.
+  It now monitors the pool and resubscribes when it goes down (macula#26).
 
 ## [0.1.0]
 
