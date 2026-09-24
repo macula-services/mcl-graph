@@ -45,13 +45,11 @@ jobs:
                 {<<"28.4.3">>, true} -> halt(0);
                 _                    -> halt(1)
             end.'
-      # libsnappy-dev liblz4-dev libzstd-dev libbz2-dev: rocksdb (via mcl_om's
-      # barrel_docdb) silently disables a codec whose dev lib is missing, and
-      # the NIF it builds then cannot open its store.
-      # libclang-dev: bindgen, for the CozoDB NIF's cozorocks.
+      # libclang-dev: bindgen, for the CozoDB NIF's cozorocks. Nothing else
+      # builds rocksdb since mcl_om 0.27.
       - run: |
           apt-get update -qq
-          apt-get install -y -qq --no-install-recommends libsnappy-dev liblz4-dev libzstd-dev libbz2-dev libclang-dev
+          apt-get install -y -qq --no-install-recommends libclang-dev
       # The NIF's cold build (cozo, cozorocks, RocksDB) is most of this job's
       # time; its registry and target directory are cached on the lock file and
       # the toolchain, which the image pins.

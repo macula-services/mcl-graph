@@ -10,15 +10,15 @@
 FROM docker.io/hexpm/erlang:28.4.3-alpine-3.22.6@sha256:3815b99f486c2509baf556045bca0c5fc1c3ee50fb50a80590534f22cb48736c AS builder
 WORKDIR /build
 
-# openssl-dev/zstd-dev/snappy-dev/lz4-dev: mcl_om pulls in rocksdb (via
-# barrel_docdb) and khepri/ra transitively, UNCONDITIONALLY.
+# No system rocksdb codecs: since mcl_om 0.27 nothing brings the erlang rocksdb
+# binding, and cozorocks builds its own RocksDB with lz4 and zstd vendored.
 #
 # clang-dev: the CozoDB NIF's `storage-rocksdb' feature builds cozorocks, whose
 # build script runs bindgen against RocksDB's C++ headers, and bindgen needs
 # libclang. Without it the build stops in a dependency's build.rs with "Unable
 # to find libclang".
 RUN apk add --no-cache git curl bash build-base cmake perl linux-headers \
-        openssl-dev zstd-dev snappy-dev lz4-dev clang-dev
+        openssl-dev clang-dev
 
 # Rust pinned to the release the CI image carries (macula-ci-otp), so the NIF
 # the image ships is compiled by the compiler the suite ran against.
@@ -34,10 +34,8 @@ ENV MACULA_FORCE_SOURCE_BUILD=1
 # headers pull it in transitively, musl's do not, so only this build needs it.
 ENV CXXFLAGS="-include cstdint"
 
-# Parallelism of the two RocksDB builds (mcl_om's and the NIF's), for a shared
-# build host: `--build-arg ERLANG_ROCKSDB_BUILDOPTS=-j4 --build-arg
-# CARGO_BUILD_JOBS=4'. Unset, each takes every core.
-ARG ERLANG_ROCKSDB_BUILDOPTS
+# Parallelism of the NIF's vendored RocksDB build, for a shared build host:
+# `--build-arg CARGO_BUILD_JOBS=4'. Unset, it takes every core.
 ARG CARGO_BUILD_JOBS
 
 RUN curl -fsSL https://github.com/erlang/rebar3/releases/download/3.27.0/rebar3 \
@@ -64,11 +62,9 @@ FROM docker.io/alpine:3.22
 # LINKS THE PACKAGE TO THE REPOSITORY, so ghcr shows it there and it inherits
 # the repository's visibility.
 LABEL org.opencontainers.image.source="https://github.com/macula-services/mcl-graph"
-# libstdc++/libgcc: the CozoDB NIF is C++ (RocksDB) underneath.
-# zstd-libs/snappy/lz4-libs: the runtime halves of the rocksdb codecs the
-# builder compiled against; missing, the release dies at boot loading the NIF.
-RUN apk add --no-cache ncurses-libs libstdc++ libgcc openssl ca-certificates curl \
-        zstd-libs snappy lz4-libs
+# libstdc++/libgcc: the CozoDB NIF is C++ (RocksDB) underneath, its codecs
+# linked in statically. openssl for OTP's crypto, curl for the health check.
+RUN apk add --no-cache ncurses-libs libstdc++ libgcc openssl ca-certificates curl
 WORKDIR /app
 COPY --from=builder /build/_build/prod/rel/mcl_graph ./
 

@@ -27,12 +27,10 @@ else
     BUILD_MOUNT=(-v mcl-graph-build:/src/_build)
 fi
 
-# ⚠ host00 is shared. rocksdb's build script ignores MAKEFLAGS and runs
-# -j$(nproc); ERLANG_ROCKSDB_BUILDOPTS caps mcl_om's, CARGO_BUILD_JOBS caps the
-# NIF's own cozorocks build. A cold build needs a rocksdb slot from the
-# Supervisor first.
-exec podman run --rm \
-    -e ERLANG_ROCKSDB_BUILDOPTS=-j4 \
+# ⚠ host00 is shared. CARGO_BUILD_JOBS caps the NIF's vendored RocksDB build
+# (cozorocks), the one rocksdb build left; a cold one needs a slot from the
+# Supervisor first. The NIF's target/ persists, so it is rarely cold.
+exec podman run --rm --cpus=4 --memory=8g \
     -e CARGO_BUILD_JOBS=4 \
     -v "${ROOT}:/src" \
     -v mcl-graph-cargo-registry:/usr/local/cargo/registry \
@@ -40,5 +38,5 @@ exec podman run --rm \
     "${BUILD_MOUNT[@]}" \
     "${IMAGE}" \
     sh -c 'apt-get update -qq >/dev/null \
-        && apt-get install -y -qq --no-install-recommends libsnappy-dev liblz4-dev libzstd-dev libbz2-dev libclang-dev >/dev/null \
+        && apt-get install -y -qq --no-install-recommends libclang-dev >/dev/null \
         && "$@"' gate "$@"

@@ -3,6 +3,16 @@
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- **mcl_om 0.27.** Its boot claim carries `MCL_SERVICE_NAME` and `MCL_BOX`,
+  which the realm's operator needs to see to admit it. The compose file sets
+  both, with `MCL_BOX` required. 0.27 no longer brings the erlang rocksdb
+  binding, so the system rocksdb codec packages are gone from the builder, the
+  runtime image and CI; the NIF's own RocksDB has its codecs linked in.
+
 ## [0.1.0]
 
 The macula 12 port of hecate-graph 0.5.1, on mcl_om.
