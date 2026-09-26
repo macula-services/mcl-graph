@@ -7,6 +7,14 @@ Versioning: [SemVer](https://semver.org/).
 
 ### Changed
 
+- **An `asserted_by` claim binds the whole triple, this realm and one use**
+  (mcl_om 0.32, mcl-om#7). `learn_link` verifies the ownership proof v2 over
+  every field of the request, the realm from `mcl_om:realm/0` and a nonce. A
+  relay that keeps a proof but changes the triple, or presents one made for
+  another realm, falls back to being the asserter itself. A replayed proof is
+  refused outright, so a link is not learned twice from one signature. Also
+  brings mcl_om 0.31's floors (macula 12.7, reckon_evoq 2.7.2).
+
 - **mcl_om 0.28 and macula 12.2.** Under macula 12.2 a publisher that died
   took the publishing process with it on mcl_om 0.27; 0.28 contains that. The
   service also answers `mcl-graph/info` (name, version, org, node id, health,

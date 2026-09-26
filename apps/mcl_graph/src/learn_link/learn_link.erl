@@ -12,9 +12,13 @@
 %%% PROVENANCE: the caller becomes part of the graph. The caller is the
 %%% wire-authenticated node id macula merges into every CALL payload, unless the
 %%% payload carries a VALID `asserted_by': an identity plus an ownership proof
-%%% (mcl_om_ownership_proof) bound to this procedure. A relay calling on behalf
-%%% of others over its own connection names them that way; an invalid claim
-%%% falls back to the wire caller and can never borrow another identity. The
+%%% (mcl_om_ownership_proof v2) over this procedure, this realm and every field
+%%% of the triple, once. A relay calling on behalf of others over its own
+%%% connection names them that way; an invalid claim falls back to the wire
+%%% caller and can never borrow another identity or change what was asserted.
+%%% A replayed claim is refused outright: a relay that repeats a proof is
+%%% misbehaving, and learning the link again would duplicate evidence (a
+%%% link's id includes its time, so this path is not idempotent). The
 %%% caller, hex-encoded, is linked `asserted' to both endpoints at confidence
 %%% 1.0, so "what has X told the graph" is an ordinary resolve_link.
 -module(learn_link).
@@ -39,33 +43,33 @@
 init(_Args) -> {ok, undefined}.
 
 handle_request(Payload, State) ->
-    replied(learn(Payload, caller(Payload)), State).
+    attributed(caller(Payload), Payload, State).
+
+attributed({ok, Caller}, Payload, State)    -> replied(learn(Payload, Caller), State);
+attributed({error, replayed}, _Payload, State) -> {error, mcl_graph_wire:reason(replayed), State}.
 
 replied({ok, Result}, State)    -> {reply, mcl_graph_wire:to_wire(Result), State};
 replied({error, Reason}, State) -> {error, mcl_graph_wire:reason(Reason), State}.
 
 caller(Payload) ->
-    asserted_or_wire(mcl_om_wire:field(asserted_by, Payload), mcl_om_wire:caller(Payload)).
+    asserted_or_wire(mcl_om_wire:field(asserted_by, Payload), Payload, mcl_om_wire:caller(Payload)).
 
-asserted_or_wire(AssertedBy, WireCaller) when is_map(AssertedBy) ->
-    verified_or_wire(verify(AssertedBy), WireCaller);
-asserted_or_wire(_Absent, WireCaller) ->
-    WireCaller.
+asserted_or_wire(AssertedBy, Payload, WireCaller) when is_map(AssertedBy) ->
+    in_realm(mcl_om:realm(), AssertedBy, Payload, WireCaller);
+asserted_or_wire(_Absent, _Payload, WireCaller) ->
+    {ok, WireCaller}.
 
-verified_or_wire({ok, Identity}, _WireCaller) -> Identity;
-verified_or_wire({error, _}, WireCaller)      -> WireCaller.
+in_realm({ok, Realm}, AssertedBy, Payload, WireCaller) ->
+    checked(mcl_om_ownership_proof:verify_asserted_by(Payload, ?PROCEDURE, Realm), AssertedBy, WireCaller);
+in_realm({error, _}, _AssertedBy, _Payload, WireCaller) ->
+    {ok, WireCaller}.
 
-verify(AssertedBy) ->
-    verify_identity(mcl_om_ownership_proof:decode_identity(mcl_om_wire:field(identity, AssertedBy)),
-                    mcl_om_wire:field(proof, AssertedBy, #{})).
-
-verify_identity(undefined, _Proof) ->
-    {error, invalid_identity};
-verify_identity(Identity, Proof) ->
-    verified(mcl_om_ownership_proof:verify(Identity, Proof, ?PROCEDURE), Identity).
-
-verified(ok, Identity)          -> {ok, Identity};
-verified({error, _} = Error, _) -> Error.
+checked(ok, AssertedBy, _WireCaller) ->
+    {ok, mcl_om_ownership_proof:decode_identity(mcl_om_wire:field(identity, AssertedBy))};
+checked({error, replayed}, _AssertedBy, _WireCaller) ->
+    {error, replayed};
+checked({error, _}, _AssertedBy, WireCaller) ->
+    {ok, WireCaller}.
 
 %%====================================================================
 %% API

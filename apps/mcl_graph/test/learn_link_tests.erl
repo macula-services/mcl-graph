@@ -14,9 +14,16 @@ learn_link_test_() ->
      fun() ->
              meck:new(mcl_graph_store, [non_strict]),
              meck:new(mcl_graph_facts, [passthrough]),
-             ok
+             meck:new(mcl_om, [passthrough]),
+             meck:expect(mcl_om, realm, fun() -> {ok, realm()} end),
+             {ok, Replay} = mcl_om_ownership_proof_replay:start_link(),
+             unlink(Replay),
+             Replay
      end,
-     fun(_) -> meck:unload(mcl_graph_facts), meck:unload(mcl_graph_store) end,
+     fun(Replay) ->
+             gen_server:stop(Replay),
+             meck:unload(mcl_om), meck:unload(mcl_graph_facts), meck:unload(mcl_graph_store)
+     end,
      [fun creates_both_entities/0,
       fun reuses_an_existing_entity/0,
       fun a_missing_subject_is_refused/0,
@@ -36,7 +43,10 @@ learn_link_test_() ->
       fun an_asserted_by_bound_to_another_procedure_is_refused/0,
       fun the_reply_is_text_not_bytes/0,
       fun a_real_wire_call_is_learned_with_its_caller/0,
-      fun a_real_wire_asserted_by_is_verified/0]}.
+      fun a_real_wire_asserted_by_is_verified/0,
+      fun a_replayed_asserted_by_is_refused/0,
+      fun a_changed_triple_falls_back_to_the_wire_caller/0,
+      fun an_asserted_by_from_another_realm_falls_back/0]}.
 
 %%------------------------------------------------------------------------------
 %% The write path
@@ -195,6 +205,39 @@ a_real_wire_asserted_by_is_verified() ->
     {reply, _, _} = learn_link:handle_request(Payload, undefined),
     ?assertEqual([hex(Identity)], asserters()).
 
+%% The same signed request presented twice: the second is refused outright,
+%% so the link is not learned twice.
+a_replayed_asserted_by_is_refused() ->
+    every_entity_is_new(),
+    Key = delivered_call:node_key(),
+    Identity = delivered_call:node_id(Key),
+    Payload = (triple())#{asserted_by => asserted_by(Key, Identity, ?PROC)},
+    {reply, _, _} = learn_link:handle_request(Payload, undefined),
+    ?assertMatch({error, _, _}, learn_link:handle_request(Payload, undefined)).
+
+%% A relay that keeps the proof but changes the triple cannot make the signer
+%% assert it: the claim fails and the relay is recorded as the asserter.
+a_changed_triple_falls_back_to_the_wire_caller() ->
+    every_entity_is_new(),
+    Key = delivered_call:node_key(),
+    Identity = delivered_call:node_id(Key),
+    AssertedBy = asserted_by(Key, Identity, ?PROC),
+    {reply, _, _} = learn_link:handle_request(
+                      (triple())#{object := <<"did:macula:mallory">>,
+                                  caller => <<3:256>>,
+                                  asserted_by => AssertedBy}, undefined),
+    ?assertEqual([hex(<<3:256>>)], asserters()).
+
+an_asserted_by_from_another_realm_falls_back() ->
+    every_entity_is_new(),
+    Key = delivered_call:node_key(),
+    Identity = delivered_call:node_id(Key),
+    AssertedBy = mcl_om_ownership_proof:make(Key, Identity, crypto:hash(sha256, <<"org.example">>),
+                                             ?PROC, triple()),
+    {reply, _, _} = learn_link:handle_request(
+                      (triple())#{caller => <<3:256>>, asserted_by => AssertedBy}, undefined),
+    ?assertEqual([hex(<<3:256>>)], asserters()).
+
 %%------------------------------------------------------------------------------
 %% Helpers
 %%------------------------------------------------------------------------------
@@ -202,13 +245,11 @@ a_real_wire_asserted_by_is_verified() ->
 triple() ->
     #{subject => <<"did:macula:alice">>, predicate => <<"knows">>, object => <<"did:macula:bob">>}.
 
+%% An asserted_by block signed over triple(), as a relay's client would send it.
 asserted_by(Key, Identity, Procedure) ->
-    Ts = erlang:system_time(millisecond),
-    Sig = macula_node_keys:sign(mcl_om_ownership_proof:message(Identity, Ts, Procedure), Key),
-    #{identity => hex(Identity),
-      proof => #{timestamp => Ts,
-                 signature => hex(Sig),
-                 public => hex(macula_node_keys:public_key(Key))}}.
+    mcl_om_ownership_proof:make(Key, Identity, realm(), Procedure, triple()).
+
+realm() -> crypto:hash(sha256, <<"io.macula">>).
 
 hex(Bin) -> binary:encode_hex(Bin, lowercase).
 
