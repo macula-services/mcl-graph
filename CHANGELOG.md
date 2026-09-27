@@ -5,14 +5,26 @@ Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A present `asserted_by` that fails is refused, never dropped.** A claim
+  that failed verification for any reason but replay (a forged signature, a
+  changed triple, another procedure or realm), a claim that is not a map, and
+  one sent before the realm was known were ignored, and the link was learned
+  under the wire caller. That hid forgery attempts and recorded links under a
+  relay's name that its signer never asserted. `learn_link` now refuses them
+  by reason (`bad_signature`, `stale_proof`, `invalid_asserted_by`,
+  `realm_unknown`, ...) and learns nothing. A call without a claim is learned
+  under the wire caller as before.
+
 ### Changed
 
 - **An `asserted_by` claim binds the whole triple, this realm and one use**
   (mcl_om 0.32, mcl-om#7). `learn_link` verifies the ownership proof v2 over
   every field of the request, the realm from `mcl_om:realm/0` and a nonce. A
   relay that keeps a proof but changes the triple, or presents one made for
-  another realm, falls back to being the asserter itself. A replayed proof is
-  refused outright, so a link is not learned twice from one signature. Also
+  another realm, is refused (see Fixed). A replayed proof is refused
+  outright, so a link is not learned twice from one signature. Also
   brings mcl_om 0.31's floors (macula 12.7, reckon_evoq 2.7.2).
 
 - **mcl_om 0.28 and macula 12.2.** Under macula 12.2 a publisher that died

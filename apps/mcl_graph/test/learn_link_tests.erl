@@ -38,15 +38,18 @@ learn_link_test_() ->
       fun records_no_provenance_without_a_caller/0,
       fun a_valid_asserted_by_is_used_when_there_is_no_wire_caller/0,
       fun a_valid_asserted_by_wins_over_the_wire_caller/0,
-      fun an_invalid_asserted_by_with_no_wire_caller_records_nothing/0,
-      fun an_invalid_asserted_by_falls_back_to_the_wire_caller/0,
+      fun an_invalid_asserted_by_with_no_wire_caller_is_refused/0,
+      fun an_invalid_asserted_by_is_refused_even_with_a_wire_caller/0,
       fun an_asserted_by_bound_to_another_procedure_is_refused/0,
+      fun an_asserted_by_that_is_not_a_map_is_refused/0,
+      fun an_asserted_by_is_refused_while_the_realm_is_unknown/0,
+      fun no_asserted_by_is_learned_while_the_realm_is_unknown/0,
       fun the_reply_is_text_not_bytes/0,
       fun a_real_wire_call_is_learned_with_its_caller/0,
       fun a_real_wire_asserted_by_is_verified/0,
       fun a_replayed_asserted_by_is_refused/0,
-      fun a_changed_triple_falls_back_to_the_wire_caller/0,
-      fun an_asserted_by_from_another_realm_falls_back/0]}.
+      fun a_changed_triple_is_refused/0,
+      fun an_asserted_by_from_another_realm_is_refused/0]}.
 
 %%------------------------------------------------------------------------------
 %% The write path
@@ -148,35 +151,67 @@ a_valid_asserted_by_wins_over_the_wire_caller() ->
                                   asserted_by => asserted_by(Key, Identity, ?PROC)}, undefined),
     ?assertEqual([hex(Identity)], asserters()).
 
-an_invalid_asserted_by_with_no_wire_caller_records_nothing() ->
+%% A claim that is present must hold. One that fails verification is refused,
+%% by name, and nothing is learned: dropping it and learning under the wire
+%% caller would hide a forgery attempt and misattribute the link.
+an_invalid_asserted_by_with_no_wire_caller_is_refused() ->
     every_entity_is_new(),
     Owner = delivered_call:node_key(),
     Impostor = delivered_call:node_key(),
-    {reply, _, _} = learn_link:handle_request(
-                      (triple())#{asserted_by => asserted_by(Impostor, delivered_call:node_id(Owner), ?PROC)},
-                      undefined),
-    ?assertEqual([], asserted_links()).
+    ?assertMatch({error, bad_signature, _},
+                 learn_link:handle_request(
+                   (triple())#{asserted_by => asserted_by(Impostor, delivered_call:node_id(Owner), ?PROC)},
+                   undefined)),
+    nothing_written().
 
-%% A forged claim can neither borrow an identity nor cost the relay the
-%% provenance its own connection earned.
-an_invalid_asserted_by_falls_back_to_the_wire_caller() ->
+%% A forged claim is not downgraded to the relay's own provenance either.
+an_invalid_asserted_by_is_refused_even_with_a_wire_caller() ->
     every_entity_is_new(),
     Owner = delivered_call:node_key(),
     Impostor = delivered_call:node_key(),
-    {reply, _, _} = learn_link:handle_request(
-                      (triple())#{caller => <<3:256>>,
-                                  asserted_by => asserted_by(Impostor, delivered_call:node_id(Owner), ?PROC)},
-                      undefined),
-    ?assertEqual([hex(<<3:256>>)], asserters()).
+    ?assertMatch({error, bad_signature, _},
+                 learn_link:handle_request(
+                   (triple())#{caller => <<3:256>>,
+                               asserted_by => asserted_by(Impostor, delivered_call:node_id(Owner), ?PROC)},
+                   undefined)),
+    nothing_written().
 
 an_asserted_by_bound_to_another_procedure_is_refused() ->
     every_entity_is_new(),
     Key = delivered_call:node_key(),
     Identity = delivered_call:node_id(Key),
-    {reply, _, _} = learn_link:handle_request(
-                      (triple())#{asserted_by => asserted_by(Key, Identity, <<"mcl-graph/other">>)},
-                      undefined),
-    ?assertEqual([], asserted_links()).
+    ?assertMatch({error, bad_signature, _},
+                 learn_link:handle_request(
+                   (triple())#{caller => <<3:256>>,
+                               asserted_by => asserted_by(Key, Identity, <<"mcl-graph/other">>)},
+                   undefined)),
+    nothing_written().
+
+an_asserted_by_that_is_not_a_map_is_refused() ->
+    every_entity_is_new(),
+    ?assertMatch({error, invalid_asserted_by, _},
+                 learn_link:handle_request(
+                   (triple())#{caller => <<3:256>>, asserted_by => <<"trust me">>}, undefined)),
+    nothing_written().
+
+%% Without the realm a claim cannot be checked, so it is refused, not ignored.
+an_asserted_by_is_refused_while_the_realm_is_unknown() ->
+    every_entity_is_new(),
+    meck:expect(mcl_om, realm, fun() -> {error, not_ready} end),
+    Key = delivered_call:node_key(),
+    Identity = delivered_call:node_id(Key),
+    ?assertMatch({error, realm_unknown, _},
+                 learn_link:handle_request(
+                   (triple())#{caller => <<3:256>>,
+                               asserted_by => asserted_by(Key, Identity, ?PROC)}, undefined)),
+    nothing_written().
+
+%% A call without a claim needs no realm: it is learned under the wire caller.
+no_asserted_by_is_learned_while_the_realm_is_unknown() ->
+    every_entity_is_new(),
+    meck:expect(mcl_om, realm, fun() -> {error, not_ready} end),
+    {reply, _, _} = learn_link:handle_request((triple())#{caller => <<3:256>>}, undefined),
+    ?assertEqual([hex(<<3:256>>)], asserters()).
 
 the_reply_is_text_not_bytes() ->
     every_entity_is_new(),
@@ -213,30 +248,34 @@ a_replayed_asserted_by_is_refused() ->
     Identity = delivered_call:node_id(Key),
     Payload = (triple())#{asserted_by => asserted_by(Key, Identity, ?PROC)},
     {reply, _, _} = learn_link:handle_request(Payload, undefined),
-    ?assertMatch({error, _, _}, learn_link:handle_request(Payload, undefined)).
+    Written = length(store_calls()),
+    ?assertMatch({error, replayed, _}, learn_link:handle_request(Payload, undefined)),
+    ?assertEqual(Written, length(store_calls())).
 
 %% A relay that keeps the proof but changes the triple cannot make the signer
-%% assert it: the claim fails and the relay is recorded as the asserter.
-a_changed_triple_falls_back_to_the_wire_caller() ->
+%% assert it, and cannot get the changed triple learned under its own name.
+a_changed_triple_is_refused() ->
     every_entity_is_new(),
     Key = delivered_call:node_key(),
     Identity = delivered_call:node_id(Key),
     AssertedBy = asserted_by(Key, Identity, ?PROC),
-    {reply, _, _} = learn_link:handle_request(
-                      (triple())#{object := <<"did:macula:mallory">>,
-                                  caller => <<3:256>>,
-                                  asserted_by => AssertedBy}, undefined),
-    ?assertEqual([hex(<<3:256>>)], asserters()).
+    ?assertMatch({error, bad_signature, _},
+                 learn_link:handle_request(
+                   (triple())#{object := <<"did:macula:mallory">>,
+                               caller => <<3:256>>,
+                               asserted_by => AssertedBy}, undefined)),
+    nothing_written().
 
-an_asserted_by_from_another_realm_falls_back() ->
+an_asserted_by_from_another_realm_is_refused() ->
     every_entity_is_new(),
     Key = delivered_call:node_key(),
     Identity = delivered_call:node_id(Key),
     AssertedBy = mcl_om_ownership_proof:make(Key, Identity, crypto:hash(sha256, <<"org.example">>),
                                              ?PROC, triple()),
-    {reply, _, _} = learn_link:handle_request(
-                      (triple())#{caller => <<3:256>>, asserted_by => AssertedBy}, undefined),
-    ?assertEqual([hex(<<3:256>>)], asserters()).
+    ?assertMatch({error, bad_signature, _},
+                 learn_link:handle_request(
+                   (triple())#{caller => <<3:256>>, asserted_by => AssertedBy}, undefined)),
+    nothing_written().
 
 %%------------------------------------------------------------------------------
 %% Helpers
@@ -289,6 +328,12 @@ entity_inserted(Id) ->
 
 asserted_links() ->
     [P || {_Q, P} <- store_calls(), maps:get(<<"predicate">>, P, undefined) =:= <<"asserted">>].
+
+%% A refused call wrote nothing and published nothing.
+nothing_written() ->
+    ?assertEqual([], store_calls()),
+    ?assertEqual([], facts(entity_learned)),
+    ?assertEqual([], facts(link_learned)).
 
 asserters() ->
     lists:usort([S || #{<<"subject">> := S} <- asserted_links()]).

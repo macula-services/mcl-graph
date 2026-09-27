@@ -47,8 +47,13 @@ for the same new entity publish `entity_learned` once.
 The caller becomes part of the graph. By default the caller is the
 wire-authenticated node id of the call. A relay calling on behalf of others
 can name who it acts for in `asserted_by`, which carries an identity and an
-ownership proof bound to `mcl-graph/learn_link`. If the proof is invalid, the
-caller falls back to the wire caller. The caller, hex-encoded, is linked
+ownership proof bound to `mcl-graph/learn_link`, this realm, every field of
+the triple and one use. A claim that is present must hold: if it does not,
+the call is refused with the reason (`bad_signature`, `stale_proof`,
+`replayed`, ...; `invalid_asserted_by` when it is not a map, `realm_unknown`
+before the realm is known) and nothing is learned. It never falls back to the
+wire caller, which would hide a forgery attempt and record a link its signer
+never asserted under the relay's name. The caller, hex-encoded, is linked
 `asserted` to both endpoints at confidence 1.0. To ask what X has told the
 graph, call `resolve_link` with subject X and predicate `asserted`.
 
