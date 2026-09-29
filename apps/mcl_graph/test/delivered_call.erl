@@ -7,10 +7,41 @@
 %% `{text, Bin}', keys of nested maps included, and nothing but this shows it.
 -module(delivered_call).
 
--export([node_key/0, node_id/1, delivered/2]).
+-export([node_key/0, node_id/1, delivered/2, warm/0]).
+
+%% A pq_hybrid key takes seconds to make (RSA-4096 among its parts), longer on a
+%% shared CI box, and a test that made its own outran eunit's 5 s. So the keys
+%% are made ONCE per VM, in a suite's setup through warm/0 (which runs under that
+%% suite's own timeout), and node_key/0 hands them out in turn: a test asking
+%% for two keys gets two different ones.
+-define(POOL, 4).
+
+-spec warm() -> ok.
+warm() ->
+    pool(),
+    ok.
 
 -spec node_key() -> macula_node_keys:node_key().
 node_key() ->
+    Keys = pool(),
+    element(1 + atomics:add_get(counter(), 1, 1) rem ?POOL, Keys).
+
+pool() ->
+    case persistent_term:get({?MODULE, keys}, undefined) of
+        undefined -> made();
+        Keys -> Keys
+    end.
+
+made() ->
+    Keys = list_to_tuple([make() || _ <- lists:seq(1, ?POOL)]),
+    persistent_term:put({?MODULE, counter}, atomics:new(1, [])),
+    persistent_term:put({?MODULE, keys}, Keys),
+    Keys.
+
+counter() ->
+    persistent_term:get({?MODULE, counter}).
+
+make() ->
     {ok, Key} = macula_node_keys:generate(identity, profile(), #{puzzle_difficulty => 0}),
     Key.
 

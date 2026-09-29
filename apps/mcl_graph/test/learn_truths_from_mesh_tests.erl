@@ -139,7 +139,7 @@ subscribed_is_read_without_the_subscriber_test() ->
 %% codec stands in for the publication's: both carry the payload through the
 %% same map encoding.
 real_wire_test_() ->
-    {setup,
+    {timeout, 120, {setup, fun delivered_call:warm/0, fun(_) -> ok end, {setup,
      fun() ->
              meck:new(mcl_graph_store, [non_strict]),
              meck:new(mcl_graph_facts, [passthrough]),
@@ -148,7 +148,7 @@ real_wire_test_() ->
              meck:expect(mcl_graph_facts, publish_link_learned, fun(_) -> ok end)
      end,
      fun(_) -> meck:unload(mcl_graph_facts), meck:unload(mcl_graph_store) end,
-     fun a_real_wire_fact_is_learned/0}.
+     fun a_real_wire_fact_is_learned/0}}}.
 
 a_real_wire_fact_is_learned() ->
     Wire = maps:remove(caller, delivered_call:delivered(triple(), delivered_call:node_key())),

@@ -3,8 +3,10 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
+%% The real-wire test's keys are made once, in the setup, under this group's
+%% own time (see delivered_call).
 resolve_link_test_() ->
-    {foreach,
+    {timeout, 120, {setup, fun delivered_call:warm/0, fun(_) -> ok end, {foreach,
      fun() -> meck:new(mcl_graph_store, [non_strict]) end,
      fun(_) -> meck:unload(mcl_graph_store) end,
      [fun direct_out_rows_are_named/0,
@@ -20,7 +22,7 @@ resolve_link_test_() ->
       fun a_store_failure_reaches_the_caller_as_store_error/0,
       fun a_missing_subject_is_refused/0,
       fun a_real_wire_call_resolves/0,
-      fun the_reply_is_text_not_bytes/0]}.
+      fun the_reply_is_text_not_bytes/0]}}}.
 
 direct_out_rows_are_named() ->
     rows([<<"predicate">>, <<"object">>, <<"confidence">>, <<"source">>, <<"learned_at">>],

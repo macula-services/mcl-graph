@@ -10,7 +10,7 @@
 -define(PROC, <<"mcl-graph/learn_link">>).
 
 learn_link_test_() ->
-    {foreach,
+    with_keys({foreach,
      fun() ->
              meck:new(mcl_graph_store, [non_strict]),
              meck:new(mcl_graph_facts, [passthrough]),
@@ -49,7 +49,11 @@ learn_link_test_() ->
       fun a_real_wire_asserted_by_is_verified/0,
       fun a_replayed_asserted_by_is_refused/0,
       fun a_changed_triple_is_refused/0,
-      fun an_asserted_by_from_another_realm_is_refused/0]}.
+      fun an_asserted_by_from_another_realm_is_refused/0]}).
+
+%% The real-wire tests' keys are made once, here, under this group's own time.
+with_keys(Tests) ->
+    {timeout, 120, {setup, fun delivered_call:warm/0, fun(_) -> ok end, Tests}}.
 
 %%------------------------------------------------------------------------------
 %% The write path
