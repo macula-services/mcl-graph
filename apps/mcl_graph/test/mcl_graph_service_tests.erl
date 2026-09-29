@@ -94,34 +94,104 @@ health_test_() ->
 %% The runtime is pinned in four places and they must agree
 %%==============================================================================
 
-%% The builder image (by digest), the CI image's toolchain check, .tool-versions
-%% and the VM running this test. A floating `erlang:28' once shipped OTP 28.5 to
-%% the fleet while every check stayed green.
+%% The builder stage and lint each ASSERT an OTP release in a check step, because
+%% a dated image tag names a date, not a release. Those, .tool-versions and the VM
+%% running this test must agree to the patch: a floating `erlang:28' once shipped
+%% OTP 28.5 to the fleet while every check stayed green.
 the_runtime_agrees_between_the_image_the_ci_and_this_vm_test() ->
-    Image = pinned("Containerfile",
-                   "^FROM docker\\.io/(?:hexpm/)?erlang:([0-9]+\\.[0-9]+\\.[0-9]+)"
-                   "-alpine[^@\\s]*@sha256:[0-9a-f]{64} AS builder$"),
-    Ci = pinned(".github/workflows/lint-and-test.yml",
-                "\\{<<\"([0-9]+\\.[0-9]+\\.[0-9]+)\">>, true\\} -> halt\\(0\\);"),
+    Check = "\\{<<\"([0-9]+\\.[0-9]+\\.[0-9]+)\">>, true\\} -> halt\\(0\\);",
+    Image = pinned("Containerfile", Check),
+    Ci = pinned(".github/workflows/lint-and-test.yml", Check),
     Tools = pinned(".tool-versions", "^erlang ([0-9]+\\.[0-9]+\\.[0-9]+)$"),
     ?assertEqual([Image], lists:usort([Image, Ci, Tools, running_otp()])).
 
-%% The NIF's Rust toolchain is pinned too, to the one the CI image carries.
-the_image_build_pins_rust_test() ->
-    Rust = pinned("Containerfile", "--default-toolchain ([0-9]+\\.[0-9]+\\.[0-9]+)"),
-    ?assertMatch({match, _}, re:run(Rust, "^[0-9]+\\.[0-9]+\\.[0-9]+$")).
+%% THE FLEET'S ROCKSDB IMAGE PAIR, by one dated tag and digest: the builder
+%% carries OTP 28.4.3 with ML-DSA, rebar3, Rust, cmake and a C++ toolchain for
+%% the CozoDB NIF; the runtime is the same Debian with what the release loads.
+%% CI builds in exactly the builder, so a green lint is about what ships.
+images_are_the_dated_and_digest_pinned_rocksdb_pair_test() ->
+    Pin = ":([0-9]{8}-[0-9]{4}@sha256:[0-9a-f]{64})",
+    Builder = pinned("Containerfile", "^FROM ghcr\\.io/macula-io/macula-ci-otp-rocksdb" ++ Pin ++ " AS builder$"),
+    Runtime = pinned("Containerfile", "^FROM ghcr\\.io/macula-io/macula-pq-runtime-rocksdb" ++ Pin ++ "$"),
+    Ci = pinned(".github/workflows/lint-and-test.yml",
+                "^\\s+image: ghcr\\.io/macula-io/macula-ci-otp-rocksdb" ++ Pin ++ "$"),
+    ?assertEqual(Builder, Ci),
+    ?assertEqual(tag(Builder), tag(Runtime)).
 
-image_build_pins_rebar3_by_sha256_test() ->
-    {ok, Containerfile} = file:read_file(alongside("Containerfile")),
-    ?assertMatch({match, _}, re:run(Containerfile, "releases/download/3\\.27\\.0/rebar3")),
-    ?assertMatch({match, _}, re:run(Containerfile, "\\b[0-9a-f]{64}  /usr/local/bin/rebar3")),
-    ?assertEqual(nomatch, binary:match(Containerfile, <<"s3.amazonaws.com/rebar3">>)).
+tag(Pin) -> hd(binary:split(Pin, <<"@">>)).
 
-lint_runs_on_no_floating_image_test() ->
-    {ok, Lint} = file:read_file(alongside(".github/workflows/lint-and-test.yml")),
-    ?assertMatch({match, _},
-                 re:run(Lint, "image: ghcr\\.io/macula-io/macula-ci-otp:[0-9]{8}-[0-9]{4}@sha256:[0-9a-f]{64}$",
-                        [multiline])).
+%% THE NIF IS BUILT FOR THE BASELINE x86-64, on purpose. cozorocks compiles
+%% RocksDB with -mavx2 and friends whenever Rust's target features include them,
+%% and the beam boxes are Celeron J4105s without AVX2: an image built for the
+%% build machine's CPU dies there with SIGILL. build-nif.sh pins the target CPU
+%% instead of inheriting whatever RUSTFLAGS the image or a shell carries.
+the_nif_is_built_for_the_baseline_cpu_test() ->
+    ?assertEqual(<<"x86-64">>,
+                 pinned("native/build-nif.sh", "^\\s+export RUSTFLAGS=\"-C target-cpu=(x86-64)\"$")),
+    Native = [F || F <- ["Containerfile", ".github/workflows/lint-and-test.yml", "native/build-nif.sh"],
+                   match =:= re:run(read(F), <<"target-cpu=native|-march=native">>, [{capture, none}])],
+    ?assertEqual([], Native).
+
+%% The service is nothing without the mesh: mcl_om's {mesh, required} stops a
+%% boot missing MCL_REALM, MCL_REALM_KEY or the pinned stations and names each
+%% one. It must sit in the mcl_om block, the one mcl_om reads.
+the_service_requires_the_mesh_test() ->
+    ?assertEqual(<<"required">>,
+                 pinned("config/sys.config.src",
+                        "(?s)^\\s+\\{mcl_om, \\[(?:(?!^\\s+\\]\\},?$).)*?^\\s+\\{mesh,\\s+(required)\\},?$")).
+
+%% SIGNED BY DIGEST: build-push hands the pushed digest to macula-ci-images'
+%% attest-image.yml, pinned by full commit (the signing identity), so a box can
+%% refuse any mcl-graph digest this repository's CI did not build.
+the_image_is_signed_by_the_pinned_attest_workflow_test() ->
+    W = ".github/workflows/build-push.yml",
+    ?assertMatch(<<_/binary>>,
+                 pinned(W, "^\\s+uses: macula-io/macula-ci-images/\\.github/workflows/attest-image\\.yml@([0-9a-f]{40})$")),
+    ?assertEqual(<<"ghcr.io/macula-services/mcl-graph">>,
+                 pinned(W, "^\\s+image: (ghcr\\.io/macula-services/mcl-graph)$")),
+    ?assertEqual(<<"needs.build-and-push.outputs.digest">>,
+                 pinned(W, "^\\s+digest: \\$\\{\\{ (needs\\.build-and-push\\.outputs\\.digest) \\}\\}$")),
+    %% The chain that carries the digest to the attest job. Without either link
+    %% the digest is empty, the attest job is skipped, and the run is green with
+    %% an unsigned image.
+    ?assertEqual(<<"steps.push.outputs.digest">>,
+                 pinned(W, "^\\s+digest: \\$\\{\\{ (steps\\.push\\.outputs\\.digest) \\}\\}$")),
+    ?assertEqual(<<"push">>,
+                 pinned(W, "^\\s+id: (push)\\n\\s+uses: docker/build-push-action@")).
+
+%% Every action a workflow runs is pinned by full commit: a tag moves.
+every_action_is_pinned_by_commit_test() ->
+    Unpinned = [{W, U} || W <- [".github/workflows/build-push.yml", ".github/workflows/lint-and-test.yml"],
+                          U <- uses(W), nomatch =:= re:run(U, <<"@[0-9a-f]{40}$">>)],
+    ?assertEqual([], Unpinned).
+
+uses(Workflow) ->
+    case re:run(read(Workflow), <<"^\\s+(?:-\\s+)?uses:\\s+(\\S+)">>,
+                [multiline, global, {capture, all_but_first, binary}]) of
+        {match, Found} -> [U || [U] <- Found];
+        nomatch -> []
+    end.
+
+%% Only main publishes :latest and only a v* tag a version; any other ref,
+%% a branch built by hand, ends in exit 1 instead of overwriting either.
+only_main_publishes_latest_test() ->
+    ?assertEqual(<<"exit 1">>,
+                 pinned(".github/workflows/build-push.yml",
+                        "^\\s+elif \\[\\[ \"\\$\\{GITHUB_REF\\}\" == refs/heads/main \\]\\]; then\\n"
+                        "\\s+echo \"tags=[^\\n]*:latest\" >> \"\\$GITHUB_OUTPUT\"\\n"
+                        "\\s+else\\n(?:\\s+#[^\\n]*\\n)*\\s+echo [^\\n]*>&2\\n\\s+(exit 1)\\n\\s+fi$")).
+
+%% The image says which commit IT was built from, not its base image's.
+the_image_carries_its_revision_test() ->
+    ?assertEqual(<<"REVISION">>, pinned("Containerfile", "^ARG (REVISION)=unknown$")),
+    ?assertEqual(<<"${REVISION}">>,
+                 pinned("Containerfile", "^LABEL org\\.opencontainers\\.image\\.revision=\"([^\"]+)\"$")),
+    ?assertEqual(<<"${{ github.sha }}">>,
+                 pinned(".github/workflows/build-push.yml", "^\\s+REVISION=(.+)$")).
+
+read(Relative) ->
+    {ok, Text} = file:read_file(alongside(Relative)),
+    Text.
 
 running_otp() ->
     {ok, Version} = file:read_file(filename:join([code:root_dir(), "releases",
