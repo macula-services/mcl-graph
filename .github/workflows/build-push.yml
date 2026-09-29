@@ -1,25 +1,41 @@
-# Build the OCI image for mcl-graph and push it to ghcr.io.
+# Build the OCI image for mcl-graph and push to the registry.
 #
-# A v* tag pushes the semver tag; a push to main pushes :latest. Nothing deploys
-# from here: the fleet runs pinned versions from macula-fleet.
+# TWO CHANNELS, AND A TAG PUSH MUST NOT TOUCH :latest.
+#
+#   push to main : publishes :latest        <- the tip of main, deploys nothing
+#   push of v*   : publishes :<semver> ONLY <- a release
+#
+# The fleet runs a release BY DIGEST: macula-fleet pins the digest a v* tag
+# produced and reconciles the box to it, so a new image reaches a box only when
+# its pin is bumped. :latest is a moving label for trying the tip of main;
+# nothing on the fleet follows it. A tag that also moved :latest would make that
+# label jump to a release, so the two stay apart.
+#
+# NO PATH FILTER, ON PURPOSE. A docs-only push should not rebuild :latest and
+# restart every box, but `paths-ignore' cannot be trusted with that: on the push
+# that CREATES a branch GitHub evaluates it on the head commit alone, so a first
+# push ending in a README edit silently built no image. scripts/is_image_push.sh
+# decides from the pushed range instead, and builds whenever it cannot tell.
+# If an image is ever missing anyway, run this workflow by hand.
+#
+# NOTE ON PUSHING THIS FILE. An HTTPS push that creates or updates anything under
+# .github/workflows/ needs a token carrying the `workflow' scope, and the error
+# names the FILE rather than the missing scope. Use an SSH remote and the problem
+# does not arise.
 
 name: build-and-push
 
 on:
   push:
     branches: [main]
-    tags: ['v*']
-    # A push that changes no code must not build. ⚠ On the push that CREATES a
-    # branch, GitHub filters on the head commit alone, so a first push whose
-    # last commit is docs-only builds nothing. Dispatch this workflow then.
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'scripts/**'
+    tags:     ['v*']
   workflow_dispatch:
 
-# One build per ref: three quick pushes would otherwise finish in any order and
-# leave :latest on whichever finished last.
+# ONE IMAGE BUILD IN FLIGHT PER REF. Every push to main builds and pushes
+# :latest; without this, three quick commits run three builds that finish in
+# whatever order the runners please, and :latest ends up being whichever
+# finished LAST, not whichever was pushed last. A sibling service hit exactly
+# that live, when boxes still followed :latest.
 concurrency:
   group: build-and-push-${{ github.ref }}
   cancel-in-progress: true
@@ -30,29 +46,70 @@ jobs:
     permissions:
       contents: read
       packages: write
+    # The digest the push produced: the one the attest job signs. Empty when
+    # the gate built nothing (a documentation-only push).
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
+
     steps:
-      - uses: actions/checkout@v4
+      # The whole history, so the gate below can diff the pushed range.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+
+      - name: Does this push need an image?
+        id: gate
+        run: scripts/is_image_push.sh "${{ github.event.before }}" "${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to the registry
-        uses: docker/login-action@v3
+        if: steps.gate.outputs.build == 'true'
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set tag
+      # Emits the COMPLETE tag list, so the condition governs all of it.
+      - name: Set tags
+        if: steps.gate.outputs.build == 'true'
         id: tag
         run: |
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            echo "tag=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+            echo "tags=ghcr.io/macula-services/mcl-graph:${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          elif [[ "${GITHUB_REF}" == refs/heads/main ]]; then
+            echo "tags=ghcr.io/macula-services/mcl-graph:latest" >> "$GITHUB_OUTPUT"
           else
-            echo "tag=latest" >> "$GITHUB_OUTPUT"
+            # A build of any other ref (by hand) would overwrite :latest.
+            echo "build-push: only main publishes :latest and only a v* tag a version, not ${GITHUB_REF}" >&2
+            exit 1
           fi
 
       - name: Build and push
-        uses: docker/build-push-action@v6
+        if: steps.gate.outputs.build == 'true'
+        id: push
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           context: .
           file: Containerfile
           push: true
-          tags: ghcr.io/macula-services/mcl-graph:${{ steps.tag.outputs.tag }}
+          tags: ${{ steps.tag.outputs.tags }}
+          # The commit the image was built from, readable from the image itself.
+          build-args: |
+            REVISION=${{ github.sha }}
+
+  # SIGNED BY DIGEST, SBOM AND PROVENANCE ATTESTED, keyless, so a box can refuse any
+  # mcl-graph digest that did not come from this workflow on a commit of this repository
+  # (macula-fleet's reconciler checks it before it runs the image). Pinned by full commit
+  # sha: the signing identity is that file at that ref. See macula-ci-images' README. As
+  # mcl-echo's, and skipped when the gate built nothing.
+  attest:
+    needs: build-and-push
+    if: needs.build-and-push.outputs.digest != ''
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: macula-io/macula-ci-images/.github/workflows/attest-image.yml@b304162c9b46b366f93af362d3a76f17ae01794f
+    with:
+      image: ghcr.io/macula-services/mcl-graph
+      digest: ${{ needs.build-and-push.outputs.digest }}

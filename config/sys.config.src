@@ -17,6 +17,12 @@
         {identity_key_path, "/etc/mcl/secrets/identity.key"},
         {health_port,       ${MCL_HEALTH_PORT}},
         {capability_topic,  <<"_mesh.cap.">>},
+        %% THIS SERVICE EXISTS TO ANSWER ON THE MESH, so it does not boot
+        %% without MCL_REALM, MCL_REALM_KEY, MACULA_STATION_SEEDS and
+        %% MACULA_STATION_NODE_IDS: mcl_om refuses, naming every one missing.
+        %% Without this line an unset seed list boots a green service with no
+        %% mesh at all, which answers /health and nothing else.
+        {mesh,              required},
         %% One org per service, named after the repo: callers reach the desks as
         %% `mcl-graph/<name>'. Fixed, not deploy config.
         {org,               <<"mcl-graph">>},

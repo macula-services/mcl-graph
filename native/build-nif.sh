@@ -20,6 +20,17 @@ command -v cargo >/dev/null 2>&1 || {
     exit 1
 }
 
+# THE BASELINE x86-64, NEVER THE BUILD MACHINE'S CPU. cozorocks compiles its
+# RocksDB with -mavx2 and friends whenever Rust's target features include them,
+# and the beam boxes are Celeron J4105s without AVX2: a NIF built for the build
+# host's CPU loads there and dies with SIGILL on the first RocksDB call. Pinned
+# here, not inherited from whatever RUSTFLAGS the image or a shell carries.
+case "$(uname -m)" in
+    x86_64)
+        export RUSTFLAGS="-C target-cpu=x86-64"
+        ;;
+esac
+
 echo "[mcl-graph] building the CozoDB NIF"
 (cd "${NIF_DIR}" && cargo build --release --locked)
 

@@ -7,8 +7,9 @@ RocksDB) on local disk. Callers query it and add to it over the
 knowledge graph from many instances, either by calling `resolve_link` on each
 one or by subscribing to the facts they publish.
 
-It runs on macula 12 through [mcl_om](https://hex.pm/packages/mcl_om), with
-post-quantum signatures on every call and fact.
+It runs on macula 13 through [mcl_om](https://hex.pm/packages/mcl_om) 0.33, with
+post-quantum signatures on every call and fact. The architecture, as a C4 model,
+is in [architecture/](architecture/README.md).
 
 ## Mesh surface
 
@@ -74,8 +75,15 @@ cannot fail.
 ## Build and test
 
 The CozoDB NIF (`native/mcl_graph_nif`, Rust) is built from source on every
-compile and needs cargo and libclang. If the NIF fails to build, the compile
-fails. Nothing falls back.
+compile and needs cargo, cmake and a C++ toolchain (cozorocks compiles its own
+RocksDB). If the NIF fails to build, the compile fails. Nothing falls back. It
+is built for the baseline x86-64 CPU (`native/build-nif.sh`), never the build
+machine's: the beam boxes are Celeron J4105s without AVX2, where a RocksDB
+built with `-mavx2` dies with SIGILL.
+
+The image builds in the fleet's rocksdb image pair (`macula-ci-otp-rocksdb` /
+`macula-pq-runtime-rocksdb`, pinned by dated tag and digest), and CI runs lint,
+eunit and dialyzer in the same build image.
 
 ```sh
 scripts/ci-gate.sh                 # lint, eunit, dialyzer in the CI image, as root
@@ -105,7 +113,16 @@ delivers.
 
 The node identity is kept at `/etc/mcl/secrets/identity.key` and must be on a
 persistent volume. `deploy/docker-compose.yml` runs the service with both
-volumes in place.
+volumes in place, the image by digest (`MCL_GRAPH_IMAGE_DIGEST`) and the graph
+at `MCL_GRAPH_DATA` (default `/bulk0/mcl-graph`). With `{mesh, required}` a boot
+missing the realm, its key or the pinned stations stops and names each one.
+
+## Deployment
+
+A `v*` tag builds `ghcr.io/macula-services/mcl-graph:<version>`, signed by digest
+with its SBOM and provenance (macula-ci-images' `attest-image.yml`). The fleet
+runs a release by digest: macula-fleet pins it and the box reconciles to it. A
+push to main publishes `:latest`, which nothing on the fleet follows.
 
 `/health` reports `down` when the store is not open. It reports `degraded`
 when the `truth_asserted` subscription is not held: the graph still answers
@@ -113,4 +130,16 @@ calls but hears no truths.
 
 ## License
 
-Apache-2.0
+Apache-2.0.
+
+### Dependency licences
+
+| Dependency | Licence | How it is used |
+|---|---|---|
+| [cozo](https://github.com/cozodb/cozo) 0.7 (with cozorocks) | MPL-2.0 | the graph database, linked into the NIF |
+| RocksDB, lz4, zstd (vendored by cozorocks) | Apache-2.0 / GPL-2.0 (RocksDB, dual), BSD (lz4, zstd) | cozo's storage, compiled into the NIF |
+| [rustler](https://github.com/rusterlium/rustler) 0.38 | MIT / Apache-2.0 | the NIF bridge |
+| [mcl_om](https://hex.pm/packages/mcl_om), [macula](https://hex.pm/packages/macula) | Apache-2.0 | the mesh substrate |
+
+MPL-2.0 is file-level copyleft: changes to cozo's own files would be published
+under MPL-2.0; this repository's code stays Apache-2.0.

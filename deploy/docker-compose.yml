@@ -3,19 +3,23 @@
 # Runnable as-is. It carries what the SERVICE knows about itself: its image, its
 # port, the environment its code reads, its volumes and its health check.
 #
-#   MCL_REALM=<64-hex> MCL_REALM_NAME=io.macula \
+#   MCL_GRAPH_IMAGE_DIGEST=sha256:<64-hex digest of a released image> \
+#     MCL_REALM=<64-hex> MCL_REALM_NAME=io.macula \
 #     MCL_REALM_KEY=<hex of the realm's public signing key> \
 #     MACULA_STATION_SEEDS=station.example:4433 \
 #     MACULA_STATION_NODE_IDS=<64-hex node id of that station> \
 #     MCL_BOX=<this host's name> \
 #     docker compose -p mcl-graph -f deploy/docker-compose.yml up -d
 #
-# Placement (which host, which station, which pinned version) belongs to the
-# fleet repository, not here.
+# A MINIMAL RUNNABLE EXAMPLE. The fleet deploys services from its own files in
+# macula-fleet, in the same shape: the image by digest, the digest from the box's
+# committed config. Placement (which host, which station, which pinned version)
+# belongs there, not here.
 
 services:
   mcl-graph:
-    image: ghcr.io/macula-services/mcl-graph:latest
+    # BY DIGEST, NEVER A TAG: a tag moves under a running box.
+    image: ghcr.io/macula-services/mcl-graph@${MCL_GRAPH_IMAGE_DIGEST:?set MCL_GRAPH_IMAGE_DIGEST to sha256:<digest> of a released image}
     container_name: mcl-graph
     restart: unless-stopped
     # macula stations are reachable over IPv6 only, and a default bridge has no

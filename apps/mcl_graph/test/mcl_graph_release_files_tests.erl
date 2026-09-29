@@ -44,12 +44,13 @@ the_health_port_is_the_registered_one_test() ->
     ?assertMatch({match, _}, re:run(read("Containerfile"), <<"EXPOSE 8482\\n">>)).
 
 %% The boot claim shows its service and box on the realm's Providers desk:
-%% mcl_om reads MCL_SERVICE_NAME and MCL_BOX. The service name is ours; the box
-%% is the deploying host's to say.
+%% mcl_om reads MCL_SERVICE_NAME and MCL_BOX, and the realm admits no claim that
+%% does not show both. The service name is ours; the box is the deploying
+%% host's to say, so compose refuses to start without it.
 the_claim_carries_its_labels_test() ->
     Compose = read("deploy/docker-compose.yml"),
     ?assertMatch({match, _}, re:run(Compose, <<"- MCL_SERVICE_NAME=mcl-graph\\n">>)),
-    ?assertMatch({match, _}, re:run(Compose, <<"- MCL_BOX=\\$\\{MCL_BOX:-\\}\\n">>)).
+    ?assertMatch({match, _}, re:run(Compose, <<"- MCL_BOX=\\$\\{MCL_BOX:\\?">>)).
 
 %% The version the service reports (mcl-graph/info, the boot claim) is the
 %% app's and the release's.

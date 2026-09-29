@@ -14,7 +14,7 @@
 # run that counts: a cached _build outlives the source it was compiled from.
 set -euo pipefail
 
-IMAGE="ghcr.io/macula-io/macula-ci-otp:20260923-1347@sha256:b2260d084a3d3c5e0b74932c4ee052a0cadfddddb6587d5d2214873e6bb06330"
+IMAGE="ghcr.io/macula-io/macula-ci-otp-rocksdb:20260928-1642@sha256:57e3929c45976fbc1d216bddfde831cad7b7e276d8197b099dfbac0cd731a8c9"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 if [ "$#" -eq 0 ]; then

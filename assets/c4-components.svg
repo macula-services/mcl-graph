@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1190" role="img" aria-label="mcl-graph components">
+<title>mcl-graph components</title>
+<style>
+.t-name { font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 700; }
+.t-desc { font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; font-size: 12.5px; }
+.t-rel { font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; font-size: 11.5px; paint-order: stroke; stroke-width: 4px; stroke-linejoin: round; }
+.t-code { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 13px; font-weight: 600; }
+.t-small { font-size: 12px; }
+.t-type { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 11.5px; }
+.t-bound { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 12px; font-weight: 600; }
+.edge { fill: none; stroke-width: 1.25; }
+.edge-later { fill: none; stroke-width: 1.25; stroke-dasharray: 5 4; }
+.bg { fill: #FFFFFF; }
+.b-sys { fill: #F5E9CC; stroke: #A56F0A; stroke-width: 2; }
+.b-ext { fill: #ECEFED; stroke: #8A9791; stroke-width: 1.25; }
+.b-per { fill: #E3EBF2; stroke: #3B5B7A; stroke-width: 1.25; }
+.b-cmp { fill: #FFFFFF; stroke: #8A9791; stroke-width: 1.25; }
+.b-later { fill: none; stroke: #8A9791; stroke-width: 1.25; stroke-dasharray: 5 4; }
+.bound { fill: none; stroke: #66736E; stroke-width: 1.25; stroke-dasharray: 7 5; }
+.bound-in { fill: none; stroke: #D9DFDC; stroke-width: 1.5; stroke-dasharray: 4 4; }
+.head { fill: #3B5B7A; }
+.t-name { fill: #16201D; }
+.t-code { fill: #16201D; }
+.t-type { fill: #66736E; }
+.t-desc { fill: #34413C; }
+.t-bound { fill: #66736E; }
+.t-rel { fill: #66736E; stroke: #FFFFFF; }
+.edge, .edge-later { stroke: #8A9791; }
+.arrowhead { fill: #8A9791; }
+@media (prefers-color-scheme: dark) {
+.bg { fill: #171F1C; }
+.b-sys { fill: #3A2E13; stroke: #E3AA3C; stroke-width: 2; }
+.b-ext { fill: #1C2421; stroke: #7D8B85; stroke-width: 1.25; }
+.b-per { fill: #1D2A36; stroke: #8EB4D8; stroke-width: 1.25; }
+.b-cmp { fill: #171F1C; stroke: #7D8B85; stroke-width: 1.25; }
+.b-later { fill: none; stroke: #7D8B85; stroke-width: 1.25; stroke-dasharray: 5 4; }
+.bound { fill: none; stroke: #93A09A; stroke-width: 1.25; stroke-dasharray: 7 5; }
+.bound-in { fill: none; stroke: #2A3431; stroke-width: 1.5; stroke-dasharray: 4 4; }
+.head { fill: #8EB4D8; }
+.t-name { fill: #E6ECE9; }
+.t-code { fill: #E6ECE9; }
+.t-type { fill: #93A09A; }
+.t-desc { fill: #C3CDC8; }
+.t-bound { fill: #93A09A; }
+.t-rel { fill: #93A09A; stroke: #171F1C; }
+.edge, .edge-later { stroke: #7D8B85; }
+.arrowhead { fill: #7D8B85; }
+}
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="bg" x="0" y="0" width="1240" height="1190"/>
+
+<rect class="bound" x="16" y="40" width="960" height="1016" rx="12"/>
+<text class="t-bound" x="32" y="62">mcl-graph service [Container]</text>
+<rect class="b-sys" x="32" y="76" width="928" height="84" rx="8"/>
+<text class="t-code" x="46" y="100">apps/mcl_graph: mcl_graph_service</text>
+<text class="t-type" x="948" y="100" text-anchor="end">[mcl_om_service behaviour]</text>
+<text class="t-desc" x="46" y="122">Six callbacks. capabilities/0: the five desks as mcl-graph/&lt;desk&gt; v1, handler {Desk, []}, auth =&gt; open.</text>
+<text class="t-desc" x="46" y="138">identity_spec/0: scope mcl-graph, actions resolve, learn, narrate; 30 days. No store_id/0: storeless.</text>
+<rect class="bound-in" x="32" y="180" width="928" height="112" rx="10"/>
+<text class="t-bound" x="48" y="202">mcl_om 0.33.3 [library: what every mcl-om service gets]</text>
+<rect class="b-cmp" x="48" y="208" width="144" height="68" rx="8"/>
+<text class="t-code t-small" x="60" y="228">identity key</text>
+<text class="t-desc" x="60" y="248">/etc/mcl/secrets;</text>
+<text class="t-desc" x="60" y="264">survives recreate</text>
+<rect class="b-cmp" x="198" y="208" width="144" height="68" rx="8"/>
+<text class="t-code t-small" x="210" y="228">station dial</text>
+<text class="t-desc" x="210" y="248">pinned seeds + ids;</text>
+<text class="t-desc" x="210" y="264">{mesh, required}</text>
+<rect class="b-cmp" x="348" y="208" width="144" height="68" rx="8"/>
+<text class="t-code t-small" x="360" y="228">realm claim</text>
+<text class="t-desc" x="360" y="248">boot claim; a D25</text>
+<text class="t-desc" x="360" y="264">grant per procedure</text>
+<rect class="b-cmp" x="498" y="208" width="144" height="68" rx="8"/>
+<text class="t-code t-small" x="510" y="228">info, /health</text>
+<text class="t-desc" x="510" y="248">mcl-graph/info;</text>
+<text class="t-desc" x="510" y="264">/health on 8482</text>
+<rect class="b-cmp" x="648" y="208" width="144" height="68" rx="8"/>
+<text class="t-code t-small" x="660" y="228">ownership proof</text>
+<text class="t-desc" x="660" y="248">v2 verify, used</text>
+<text class="t-desc" x="660" y="264">by learn_link</text>
+<rect class="b-later" x="798" y="208" width="144" height="68" rx="8"/>
+<text class="t-code t-small" x="810" y="228">event store</text>
+<text class="t-desc" x="810" y="248">store_id/0: not</text>
+<text class="t-desc" x="810" y="264">used by mcl-graph</text>
+<rect class="bound-in" x="32" y="312" width="928" height="148" rx="10"/>
+<text class="t-bound" x="48" y="334">apps/mcl_graph [processes, under mcl_graph_sup, one_for_one]</text>
+<rect class="b-cmp" x="48" y="344" width="440" height="100" rx="8"/>
+<text class="t-code" x="62" y="368">mcl_graph_store</text>
+<text class="t-type" x="476" y="368" text-anchor="end">[gen_server]</text>
+<text class="t-desc" x="62" y="390">Opens CozoDB at data_dir through the NIF; creates</text>
+<text class="t-desc" x="62" y="406">entities and links, one statement per script. run/2:</text>
+<text class="t-desc" x="62" y="422">every query, one at a time, with :timeout 10.</text>
+<rect class="b-cmp" x="504" y="344" width="440" height="100" rx="8"/>
+<text class="t-code" x="518" y="368">learn_truths_from_mesh</text>
+<text class="t-type" x="932" y="368" text-anchor="end">[gen_server]</text>
+<text class="t-desc" x="518" y="390">Subscribes to truth_asserted_v1. A verified publisher's</text>
+<text class="t-desc" x="518" y="406">fact goes through learn_link:learn/2 at confidence 0.7.</text>
+<text class="t-desc" x="518" y="422">Resubscribes when gone or the pool dies.</text>
+<rect class="bound-in" x="32" y="480" width="928" height="250" rx="10"/>
+<text class="t-bound" x="48" y="502">apps/mcl_graph [desks: macula_response handlers, one per procedure]</text>
+<rect class="b-cmp" x="48" y="512" width="896" height="34" rx="8"/>
+<text class="t-code t-small" x="60" y="534">resolve_link</text>
+<text class="t-desc" x="932" y="534" text-anchor="end">links out, in or both; up to 8 hops; at most 1000 rows</text>
+<rect class="b-cmp" x="48" y="554" width="896" height="34" rx="8"/>
+<text class="t-code t-small" x="60" y="576">resolve_entity</text>
+<text class="t-desc" x="932" y="576" text-anchor="end">attributes, first_seen, source; out and in degree; predicates</text>
+<rect class="b-cmp" x="48" y="596" width="896" height="34" rx="8"/>
+<text class="t-code t-small" x="60" y="618">learn_link</text>
+<text class="t-desc" x="932" y="618" text-anchor="end">insert entities, put the link, publish; caller linked asserted</text>
+<rect class="b-cmp" x="48" y="638" width="896" height="34" rx="8"/>
+<text class="t-code t-small" x="60" y="660">narrate_entity</text>
+<text class="t-desc" x="932" y="660" text-anchor="end">resolve_entity:resolve/1, then one sentence</text>
+<rect class="b-cmp" x="48" y="680" width="896" height="34" rx="8"/>
+<text class="t-code t-small" x="60" y="702">narrate_link</text>
+<text class="t-desc" x="932" y="702" text-anchor="end">resolve_link:resolve/1, then a sentence per link</text>
+<rect class="bound-in" x="32" y="750" width="928" height="142" rx="10"/>
+<text class="t-bound" x="48" y="772">apps/mcl_graph [shared modules]</text>
+<rect class="b-cmp" x="48" y="782" width="218" height="96" rx="8"/>
+<text class="t-code t-small" x="62" y="806">mcl_graph_facts</text>
+<text class="t-type" x="62" y="824">[topics, publish]</text>
+<text class="t-desc" x="62" y="844">app_fact topics; publish</text>
+<text class="t-desc" x="62" y="860">via mcl_om_pubsub</text>
+<rect class="b-cmp" x="274" y="782" width="218" height="96" rx="8"/>
+<text class="t-code t-small" x="288" y="806">mcl_graph_wire</text>
+<text class="t-type" x="288" y="824">[reply shape]</text>
+<text class="t-desc" x="288" y="844">text as {text, _}, 1/0;</text>
+<text class="t-desc" x="288" y="860">store_error to callers</text>
+<rect class="b-cmp" x="500" y="782" width="218" height="96" rx="8"/>
+<text class="t-code t-small" x="514" y="806">narrate_template</text>
+<text class="t-type" x="514" y="824">[sentences]</text>
+<text class="t-desc" x="514" y="844">fixed templates; no</text>
+<text class="t-desc" x="514" y="860">model, no network</text>
+<rect class="b-cmp" x="726" y="782" width="218" height="96" rx="8"/>
+<text class="t-code t-small" x="740" y="806">mcl_graph_nif</text>
+<text class="t-type" x="740" y="824">[NIF stub]</text>
+<text class="t-desc" x="740" y="844">loads priv/*.so on_load;</text>
+<text class="t-desc" x="740" y="860">no fallback</text>
+<rect class="bound-in" x="32" y="912" width="928" height="128" rx="10"/>
+<text class="t-bound" x="48" y="934">native/mcl_graph_nif [Rust crate, cdylib, rustler 0.38]</text>
+<rect class="b-cmp" x="48" y="944" width="896" height="80" rx="8"/>
+<text class="t-code" x="62" y="968">mcl_graph_nif.so</text>
+<text class="t-type" x="932" y="968" text-anchor="end">[CozoDB 0.7 over RocksDB, DirtyIo]</text>
+<text class="t-desc" x="62" y="990">One cozo::DbInstance behind a mutex: open, run_query, run_script, close. Errors are returned,</text>
+<text class="t-desc" x="62" y="1006">never raised. Built with -C target-cpu=x86-64: the beam boxes' Celeron J4105 has no AVX2.</text>
+<rect class="b-ext" x="1000" y="196" width="224" height="90" rx="10"/>
+<text class="t-name" x="1016" y="224">macula-realm</text>
+<text class="t-type" x="1016" y="242">[trust anchor]</text>
+<text class="t-desc" x="1016" y="266">claim, grants, realm key</text>
+<rect class="b-ext" x="1000" y="344" width="224" height="100" rx="10"/>
+<text class="t-name" x="1016" y="372">Truth producers</text>
+<text class="t-type" x="1016" y="390">[realm members]</text>
+<text class="t-desc" x="1016" y="414">publish truth_asserted_v1</text>
+<rect class="b-ext" x="1000" y="560" width="224" height="104" rx="10"/>
+<text class="t-name" x="1016" y="588">macula-station</text>
+<text class="t-type" x="1016" y="606">[pinned]</text>
+<text class="t-desc" x="1016" y="630">carries the procedures,</text>
+<text class="t-desc" x="1016" y="646">info and every fact</text>
+<rect class="b-ext" x="48" y="1100" width="440" height="64" rx="10"/>
+<text class="t-name" x="64" y="1128">Graph data</text>
+<text class="t-type" x="64" y="1146">[/data, bind mount /bulk0/mcl-graph]</text>
+<path class="edge" d="M960 242H1000" marker-end="url(#a)"/>
+<text class="t-rel" x="980" y="234" text-anchor="middle">claims</text>
+<path class="edge" d="M1000 394H944" marker-end="url(#a)"/>
+<text class="t-rel" x="971" y="386" text-anchor="middle">hears</text>
+<path class="edge" d="M1000 612H944" marker-end="url(#a)"/>
+<text class="t-rel" x="971" y="604" text-anchor="middle">calls</text>
+<path class="edge" d="M268 480V444" marker-end="url(#a)"/>
+<text class="t-rel" x="276" y="470">every desk: mcl_graph_store:run/2</text>
+<path class="edge" d="M724 444V480" marker-end="url(#a)"/>
+<text class="t-rel" x="732" y="470">learn_link:learn/2</text>
+<path class="edge" d="M960 766H1112V664" marker-end="url(#a)"/>
+<text class="t-rel" x="1120" y="686">mcl_graph_facts</text>
+<text class="t-rel" x="1120" y="700">publishes</text>
+<text class="t-rel" x="1120" y="714">entity_learned_v1,</text>
+<text class="t-rel" x="1120" y="728">link_learned_v1</text>
+<path class="edge" d="M835 878V944" marker-end="url(#a)"/>
+<text class="t-rel" x="843" y="915">load_nif</text>
+<path class="edge" d="M268 1024V1100" marker-end="url(#a)"/>
+<text class="t-rel" x="276" y="1080">entities and links (RocksDB)</text>
+</svg>

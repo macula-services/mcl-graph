@@ -5,6 +5,41 @@ Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **On the fleet's current line: mcl_om 0.33.3 and macula 13.** mcl-graph was
+  on mcl_om 0.32 and macula 12.7, which no fleet station speaks. mcl_om is
+  bounded to 0.33.x from 0.33.3, where `register/1` replies at once and
+  advertises after (0.33.2 and 0.34.0 advertise inside the 5 s call, which
+  failed mcl-rag's boot on msi00); `mcl_graph_register_tests` holds that
+  behaviour whatever mcl_om resolves. It moves to 0.35 with the fleet
+  (mcl-om#10): mcl-graph opens no mcl_om store.
+- **`{mesh, required}`.** A boot missing the realm, its key or the pinned
+  stations stops and names each one, instead of answering `/health` with no
+  mesh.
+- **Built on the fleet's rocksdb image pair** (`macula-ci-otp-rocksdb` /
+  `macula-pq-runtime-rocksdb` 20260928-1642, by digest), Debian instead of
+  Alpine with an unpinned runtime image, and CI lints, tests and runs dialyzer
+  in the same build image. The musl workarounds (`-crt-static`, `cstdint`,
+  a rustup install, a downloaded rebar3) are gone with it.
+- **The NIF is built for the baseline x86-64 CPU** (`native/build-nif.sh`), so
+  cozorocks' RocksDB never uses AVX2: the beam boxes are Celeron J4105s, where
+  it would die with SIGILL.
+- **Images are signed.** A `v*` tag publishes `:<version>` only and main
+  publishes `:latest` only (any other ref is refused); the pushed digest is
+  signed, with SBOM and provenance, by macula-ci-images' `attest-image.yml`,
+  pinned by commit. Every action is pinned by commit. The image carries its
+  own commit as `org.opencontainers.image.revision`. Whether a push needs an
+  image is decided from the pushed range (`scripts/is_image_push.sh`), not
+  `paths-ignore`.
+- **The compose example runs an image by digest** (`MCL_GRAPH_IMAGE_DIGEST`),
+  the shape macula-fleet deploys, and nothing follows `:latest`.
+
+### Added
+
+- A C4 model in `architecture/`, and the dependency licences in the README
+  (cozo and cozorocks are MPL-2.0).
+
 ### Fixed
 
 - **A present `asserted_by` that fails is refused, never dropped.** A claim

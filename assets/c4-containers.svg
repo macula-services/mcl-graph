@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" role="img" aria-label="mcl-graph containers">
+<title>mcl-graph containers</title>
+<style>
+.t-name { font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 700; }
+.t-desc { font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; font-size: 12.5px; }
+.t-rel { font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; font-size: 11.5px; paint-order: stroke; stroke-width: 4px; stroke-linejoin: round; }
+.t-code { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 13px; font-weight: 600; }
+.t-small { font-size: 12px; }
+.t-type { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 11.5px; }
+.t-bound { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 12px; font-weight: 600; }
+.edge { fill: none; stroke-width: 1.25; }
+.edge-later { fill: none; stroke-width: 1.25; stroke-dasharray: 5 4; }
+.bg { fill: #FFFFFF; }
+.b-sys { fill: #F5E9CC; stroke: #A56F0A; stroke-width: 2; }
+.b-ext { fill: #ECEFED; stroke: #8A9791; stroke-width: 1.25; }
+.b-per { fill: #E3EBF2; stroke: #3B5B7A; stroke-width: 1.25; }
+.b-cmp { fill: #FFFFFF; stroke: #8A9791; stroke-width: 1.25; }
+.b-later { fill: none; stroke: #8A9791; stroke-width: 1.25; stroke-dasharray: 5 4; }
+.bound { fill: none; stroke: #66736E; stroke-width: 1.25; stroke-dasharray: 7 5; }
+.bound-in { fill: none; stroke: #D9DFDC; stroke-width: 1.5; stroke-dasharray: 4 4; }
+.head { fill: #3B5B7A; }
+.t-name { fill: #16201D; }
+.t-code { fill: #16201D; }
+.t-type { fill: #66736E; }
+.t-desc { fill: #34413C; }
+.t-bound { fill: #66736E; }
+.t-rel { fill: #66736E; stroke: #FFFFFF; }
+.edge, .edge-later { stroke: #8A9791; }
+.arrowhead { fill: #8A9791; }
+@media (prefers-color-scheme: dark) {
+.bg { fill: #171F1C; }
+.b-sys { fill: #3A2E13; stroke: #E3AA3C; stroke-width: 2; }
+.b-ext { fill: #1C2421; stroke: #7D8B85; stroke-width: 1.25; }
+.b-per { fill: #1D2A36; stroke: #8EB4D8; stroke-width: 1.25; }
+.b-cmp { fill: #171F1C; stroke: #7D8B85; stroke-width: 1.25; }
+.b-later { fill: none; stroke: #7D8B85; stroke-width: 1.25; stroke-dasharray: 5 4; }
+.bound { fill: none; stroke: #93A09A; stroke-width: 1.25; stroke-dasharray: 7 5; }
+.bound-in { fill: none; stroke: #2A3431; stroke-width: 1.5; stroke-dasharray: 4 4; }
+.head { fill: #8EB4D8; }
+.t-name { fill: #E6ECE9; }
+.t-code { fill: #E6ECE9; }
+.t-type { fill: #93A09A; }
+.t-desc { fill: #C3CDC8; }
+.t-bound { fill: #93A09A; }
+.t-rel { fill: #93A09A; stroke: #171F1C; }
+.edge, .edge-later { stroke: #7D8B85; }
+.arrowhead { fill: #7D8B85; }
+}
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="bg" x="0" y="0" width="1000" height="640"/>
+
+<rect class="bound" x="220" y="40" width="560" height="560" rx="12"/>
+<text class="t-bound" x="236" y="62">beam01.lab [planned: beam lab box, host networking]</text>
+<rect class="bound-in" x="236" y="72" width="528" height="500" rx="10"/>
+<text class="t-bound" x="252" y="94">mcl-graph [Software system, mcl-om service]</text>
+<path class="edge" d="M200 136H260" marker-end="url(#a)"/>
+<path class="edge" d="M200 226H260" marker-end="url(#a)"/>
+<path class="edge" d="M200 316H260" marker-end="url(#a)"/>
+<path class="edge" d="M740 134H810" marker-end="url(#a)"/>
+<path class="edge" d="M740 228H810" marker-end="url(#a)"/>
+<path class="edge" d="M740 310H810" marker-end="url(#a)"/>
+<path class="edge" d="M372 320V350" marker-end="url(#a)"/>
+<path class="edge" d="M627 320V350" marker-end="url(#a)"/>
+<rect class="b-sys" x="260" y="100" width="480" height="220" rx="10"/>
+<text class="t-name" x="276" y="128">mcl-graph service</text>
+<text class="t-type" x="276" y="146">[Container: OCI image, OTP 28.4.3 release, mcl_om 0.33.3]</text>
+<text class="t-desc" x="276" y="170">Five open procedures as mcl-graph/&lt;name&gt; v1, and mcl-om's</text>
+<text class="t-desc" x="276" y="186">mcl-graph/info (macula 13.0.1). Publishes entity_learned_v1,</text>
+<text class="t-desc" x="276" y="202">link_learned_v1; subscribes to truth_asserted_v1. From mcl-om:</text>
+<text class="t-desc" x="276" y="218">node identity, pinned station dial, realm claim, provider</text>
+<text class="t-desc" x="276" y="234">grants, /health on 8482. Rust NIF mcl_graph_nif: CozoDB 0.7</text>
+<text class="t-desc" x="276" y="250">(rustler 0.38), built for baseline x86-64 (no AVX2).</text>
+<text class="t-desc" x="276" y="266">Storeless for mcl-om: no reckon-db is started.</text>
+<rect class="b-cmp" x="260" y="350" width="225" height="120" rx="10"/>
+<text class="t-name" x="276" y="378">Graph data</text>
+<text class="t-type" x="276" y="396">[bind mount]</text>
+<text class="t-desc" x="276" y="420">/bulk0/mcl-graph at /data:</text>
+<text class="t-desc" x="276" y="436">CozoDB's RocksDB files,</text>
+<text class="t-desc" x="276" y="452">entities and links</text>
+<rect class="b-cmp" x="515" y="350" width="225" height="120" rx="10"/>
+<text class="t-name" x="531" y="378">Identity key</text>
+<text class="t-type" x="531" y="396">[mcl-graph-secrets]</text>
+<text class="t-desc" x="531" y="420">/etc/mcl/secrets:</text>
+<text class="t-desc" x="531" y="436">identity.key, the node id</text>
+<text class="t-desc" x="531" y="452">that signs every fact</text>
+<rect class="b-later" x="260" y="490" width="480" height="44" rx="10"/>
+<text class="t-desc" x="276" y="517">reckon-db event store: offered by mcl-om (store_id/0), not used here</text>
+<rect class="b-ext" x="10" y="96" width="190" height="80" rx="10"/>
+<text class="t-name" x="26" y="124">macula-mcp</text>
+<text class="t-type" x="26" y="142">[MCP server]</text>
+<text class="t-desc" x="26" y="166">outside the fleet</text>
+<rect class="b-ext" x="10" y="190" width="190" height="72" rx="10"/>
+<text class="t-name" x="26" y="218">Any realm member</text>
+<text class="t-type" x="26" y="236">[mesh callers]</text>
+<rect class="b-ext" x="10" y="276" width="190" height="80" rx="10"/>
+<text class="t-name" x="26" y="304">Truth producers</text>
+<text class="t-type" x="26" y="322">[realm members]</text>
+<text class="t-desc" x="26" y="346">truth_asserted_v1</text>
+<rect class="b-ext" x="810" y="96" width="180" height="76" rx="10"/>
+<text class="t-name" x="826" y="124">macula-station</text>
+<text class="t-type" x="826" y="142">[pinned seed(s)]</text>
+<rect class="b-ext" x="810" y="190" width="180" height="76" rx="10"/>
+<text class="t-name" x="826" y="218">macula-realm</text>
+<text class="t-type" x="826" y="236">[trust anchor]</text>
+<rect class="b-ext" x="810" y="280" width="180" height="90" rx="10"/>
+<text class="t-name" x="826" y="308">Graph consumers</text>
+<text class="t-type" x="826" y="326">[subscribers]</text>
+<text class="t-desc" x="826" y="350">compose many graphs</text>
+<text class="t-rel" x="230" y="128" text-anchor="middle">calls</text>
+<text class="t-rel" x="230" y="218" text-anchor="middle">calls</text>
+<text class="t-rel" x="230" y="308" text-anchor="middle">publish</text>
+<text class="t-rel" x="10" y="390">all over the mesh, via the station</text>
+<text class="t-rel" x="775" y="126" text-anchor="middle">dials</text>
+<text class="t-rel" x="775" y="220" text-anchor="middle">claims</text>
+<text class="t-rel" x="775" y="302" text-anchor="middle">facts</text>
+<text class="t-rel" x="380" y="340">CozoDB (NIF)</text>
+<text class="t-rel" x="635" y="340">loads</text>
+</svg>

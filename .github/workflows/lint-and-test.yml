@@ -1,16 +1,15 @@
-# Lint, EUnit and Dialyzer, in the CI image that pins the toolchain.
+# Lint, EUnit and Dialyzer, in the CI image the Containerfile's builder uses.
 #
 # The suite includes mcl_graph_store_tests, which opens a real CozoDB through
 # the NIF, so the NIF is built here exactly as the image builds it: the
-# rebar3 compile hook runs native/build-nif.sh, and a failed NIF build fails
-# the compile.
+# rebar3 compile hook runs native/build-nif.sh (baseline x86-64), and a failed
+# NIF build fails the compile.
 
 name: lint-and-test
 
 on:
   push:
     branches: [main]
-    paths-ignore: ['**.md', 'docs/**', 'scripts/**', 'LICENSE']
   pull_request:
   workflow_dispatch:
 
@@ -26,17 +25,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     container:
-      # ⚠ MUST MATCH THE `Containerfile' beside it: OTP 28.4.3. The dated
-      # macula-ci-otp tag is macula-io/macula-ci-images' build (OTP 28.4.3, an
-      # OpenSSL with ML-DSA, rebar3, Rust 1.98.1, cmake), pinned by digest; the
-      # step below refuses anything else. mcl_graph_service_tests guards the pins.
-      image: ghcr.io/macula-io/macula-ci-otp:20260923-1347@sha256:b2260d084a3d3c5e0b74932c4ee052a0cadfddddb6587d5d2214873e6bb06330
+      # ⚠ THE SAME BUILD IMAGE AS THE Containerfile, BY DATED TAG AND DIGEST:
+      # OTP 28.4.3 with ML-DSA, rebar3, Rust, cmake and a C++ toolchain. The
+      # step below refuses any other release; mcl_graph_service_tests guards
+      # the pins.
+      image: ghcr.io/macula-io/macula-ci-otp-rocksdb:20260928-1642@sha256:57e3929c45976fbc1d216bddfde831cad7b7e276d8197b099dfbac0cd731a8c9
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Verify the toolchain is the one we think it is
         run: |
           openssl version
           rebar3 version
+          rustc --version
+          cargo --version
           erl -noshell -eval '
             Otp = string:trim(element(2, file:read_file(filename:join([code:root_dir(), "releases", erlang:system_info(otp_release), "OTP_VERSION"])))),
             Mldsa = lists:member(mldsa87, crypto:supports(public_keys)),
@@ -45,21 +46,18 @@ jobs:
                 {<<"28.4.3">>, true} -> halt(0);
                 _                    -> halt(1)
             end.'
-      # libclang-dev: bindgen, for the CozoDB NIF's cozorocks. Nothing else
-      # builds rocksdb since mcl_om 0.27.
-      - run: |
-          apt-get update -qq
-          apt-get install -y -qq --no-install-recommends libclang-dev
       # The NIF's cold build (cozo, cozorocks, RocksDB) is most of this job's
       # time; its registry and target directory are cached on the lock file and
-      # the toolchain, which the image pins.
+      # the image, which pins the toolchain.
       - name: Cache the NIF build
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             /usr/local/cargo/registry
             native/mcl_graph_nif/target
-          key: nif-${{ hashFiles('native/mcl_graph_nif/Cargo.lock') }}-rust-1.98.1
+          key: nif-${{ hashFiles('native/mcl_graph_nif/Cargo.lock') }}-ci-otp-rocksdb-20260928-1642
       - run: rebar3 lint
       - run: rebar3 eunit
+      # Keep it gating: it is the M3 bar, and it reads the macula and mcl_om
+      # calls the tests stub.
       - run: rebar3 dialyzer
