@@ -28,8 +28,8 @@ info_round_trip_test_() ->
           %% Floors within the major: M3 asks for mcl_om 0.33 or later on macula
           %% 13. 0.33.3 is where register/1 replies at once and advertises after
           %% (mcl_graph_register_tests holds the behaviour itself).
-          ?_assert(at_least(maps:get(mcl_om_version, Reply), [0, 33, 3])),
-          ?_assert(at_least(maps:get(macula_version, Reply), [13, 0, 1]))]
+          ?_assert(at_least(maps:get(mcl_om_version, Reply), [0, 37, 6])),
+          ?_assert(at_least(maps:get(macula_version, Reply), [13, 5, 0]))]
      end}.
 
 %% The service must leave `info' to mcl_om: declaring its own refuses boot.
