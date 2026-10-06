@@ -25,11 +25,11 @@ info_round_trip_test_() ->
           ?_assertEqual([{text, C} || C <- [<<(?ORG)/binary, "/info">> | Own]],
                         maps:get(capabilities, Reply)),
           ?_assertEqual([], [V || V <- lists:flatten(maps:values(Reply)), is_binary(V)]),
-          %% Floors within the major: M3 asks for mcl_om 0.33 or later on macula
-          %% 13. 0.33.3 is where register/1 replies at once and advertises after
-          %% (mcl_graph_register_tests holds the behaviour itself).
-          ?_assert(at_least(maps:get(mcl_om_version, Reply), [0, 37, 6])),
-          ?_assert(at_least(maps:get(macula_version, Reply), [13, 5, 0]))]
+          %% Floors within the major: macula 14 (identity_dir, macula#76) and the
+          %% mcl_om built on it, 0.38.0. register/1 replying at once and advertising
+          %% after (since mcl_om 0.33.3) is held by mcl_graph_register_tests.
+          ?_assert(at_least(maps:get(mcl_om_version, Reply), [0, 38, 0])),
+          ?_assert(at_least(maps:get(macula_version, Reply), [14, 0, 0]))]
      end}.
 
 %% The service must leave `info' to mcl_om: declaring its own refuses boot.
