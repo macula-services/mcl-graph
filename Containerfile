@@ -67,7 +67,6 @@ ENV RELX_REPLACE_OS_VARS=true
 ENV MCL_NODE_NAME=mcl_graph
 ENV MCL_NODE_HOST=127.0.0.1
 ENV MCL_COOKIE=mcl_graph
-ENV MCL_HEALTH_PORT=8482
 # CozoDB's RocksDB directory. A bind mount on a bulk drive on a fleet node;
 # without one every recreate forgets the graph.
 ENV MCL_DATA_DIR=/data
@@ -75,8 +74,9 @@ ENV MCL_DATA_DIR=/data
 VOLUME ["/etc/mcl/secrets", "/data"]
 
 # Health, as registered in macula-fleet PORTS.md.
-EXPOSE 8482
+# /health is a Unix socket (health_socket in sys.config.src): no port is opened
+# just to be health-checked.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl -fsS "http://127.0.0.1:${MCL_HEALTH_PORT}/health" || exit 1
+    CMD curl -fsS --unix-socket /run/mcl/health.sock http://localhost/health || exit 1
 
 CMD ["/app/bin/mcl_graph", "foreground"]

@@ -108,7 +108,6 @@ delivers.
 | `MCL_BOX` | (required) | the host it runs on. It labels the boot claim, and the realm admits no claim without it |
 | `MCL_SERVICE_NAME` | `mcl-graph` | the service, on the same claim |
 | `MCL_DATA_DIR` | `/data` | CozoDB's RocksDB directory |
-| `MCL_HEALTH_PORT` | `8482` | `/health` |
 | `MCL_NODE_NAME`, `MCL_NODE_HOST`, `MCL_COOKIE` | `mcl_graph`, `127.0.0.1`, `mcl_graph` | Erlang distribution |
 
 The node identity is kept at `/etc/mcl/secrets/identity.key` and must be on a

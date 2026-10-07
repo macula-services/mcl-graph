@@ -4,8 +4,7 @@
 %% running node, and nothing in the build reads them together. A `${VAR}' the
 %% image does not set and compose does not require renders as a malformed term
 %% and the node refuses to boot; a graph on no volume is forgotten on the first
-%% recreate; a port the registry gives someone else is taken silently under host
-%% networking.
+%% recreate.
 -module(mcl_graph_release_files_tests).
 
 -include_lib("eunit/include/eunit.hrl").
@@ -35,13 +34,8 @@ the_graph_is_on_the_mounted_data_dir_test() ->
     ?assertMatch({match, _}, re:run(read("deploy/docker-compose.yml"), <<"^\\s+- \\$\\{MCL_GRAPH_DATA:-/bulk0/mcl-graph\\}:/data$">>,
                                     [multiline])).
 
-%% Host networking makes every port fleet-wide, so the registry (macula-fleet
-%% PORTS.md: mcl-graph health 8482) is the authority, and the image and compose
-%% say the same.
-the_health_port_is_the_registered_one_test() ->
-    ?assertEqual({ok, [<<"8482">>]}, image_value(<<"MCL_HEALTH_PORT">>)),
-    ?assertMatch({match, _}, re:run(read("deploy/docker-compose.yml"), <<"- MCL_HEALTH_PORT=8482\\n">>)),
-    ?assertMatch({match, _}, re:run(read("Containerfile"), <<"EXPOSE 8482\\n">>)).
+%% /health has no port to register: it is a Unix socket inside the container
+%% (mcl_graph_health_socket_tests, #2).
 
 %% The boot claim shows its service and box on the realm's Providers desk:
 %% mcl_om reads MCL_SERVICE_NAME and MCL_BOX, and the realm admits no claim that

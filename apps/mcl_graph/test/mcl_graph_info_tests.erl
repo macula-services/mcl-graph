@@ -26,10 +26,11 @@ info_round_trip_test_() ->
                         maps:get(capabilities, Reply)),
           ?_assertEqual([], [V || V <- lists:flatten(maps:values(Reply)), is_binary(V)]),
           %% Floors within the major: macula 14 (identity_dir, macula#76) and the
-          %% mcl_om built on it, 0.38.0. register/1 replying at once and advertising
+          %% mcl_om built on it, 0.38.0; 0.39.0 serves /health on a Unix socket and
+          %% 14.2.1 is the current SDK base (#2). register/1 replying at once and advertising
           %% after (since mcl_om 0.33.3) is held by mcl_graph_register_tests.
-          ?_assert(at_least(maps:get(mcl_om_version, Reply), [0, 38, 0])),
-          ?_assert(at_least(maps:get(macula_version, Reply), [14, 0, 0]))]
+          ?_assert(at_least(maps:get(mcl_om_version, Reply), [0, 39, 0])),
+          ?_assert(at_least(maps:get(macula_version, Reply), [14, 2, 1]))]
      end}.
 
 %% The service must leave `info' to mcl_om: declaring its own refuses boot.
