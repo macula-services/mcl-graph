@@ -3,7 +3,7 @@
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/).
 
-## Unreleased
+## 0.4.0 - 2026-10-07
 
 - **On macula 14.2 and mcl_om 0.39, `/health` on a Unix socket (#2).** `~> 14.2` (at least 14.2.1) and `~> 0.39`, the current SDK base, so an SDK fix reaches this service with the rest. mcl_om's `health_socket`, `/run/mcl/health.sock` inside the container: no TCP health listener runs, the image's HEALTHCHECK uses `curl --unix-socket`, and nothing configures, exposes or passes a health port; `scripts/health.sh` asks the running container. The sealing posture is unchanged.
 

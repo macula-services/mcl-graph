@@ -22,7 +22,7 @@
 
 info() ->
     #{name => <<"mcl-graph">>,
-      version => <<"0.3.1">>,
+      version => <<"0.4.0">>,
       description => <<"Relational-graph database (CozoDB) as a mesh service">>}.
 
 %% The realm name the topics carry must be the realm the pool is in.
