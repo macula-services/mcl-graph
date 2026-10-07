@@ -119,10 +119,13 @@ missing the realm, its key or the pinned stations stops and names each one.
 
 ## Deployment
 
-A `v*` tag builds `ghcr.io/macula-services/mcl-graph:<version>`, signed by digest
-with its SBOM and provenance (macula-ci-images' `attest-image.yml`). The fleet
-runs a release by digest: macula-fleet pins it and the box reconciles to it. A
-push to main publishes `:latest`, which nothing on the fleet follows.
+A `v*` tag publishes `ghcr.io/macula-services/mcl-graph:<version>` and nothing else, signed
+by digest with its SBOM and provenance (macula-ci-images' `attest-image.yml`). A push to
+`main` publishes `:main` and `:<sha>`, which nothing follows, and nothing moves `:latest`.
+The fleet runs a release by digest: macula-fleet's pin-releases workflow finds the signed
+release, verifies it was signed on its tag and pins `<version>@sha256:<digest>`
+(macula-fleet#14, #15), so a green `v*` tag is the deploy. To roll back, revert the pin and
+hold the image there.
 
 `/health` reports `down` when the store is not open. It reports `degraded`
 when the `truth_asserted` subscription is not held: the graph still answers
