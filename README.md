@@ -1,5 +1,19 @@
-# mcl-graph
+<!-- Service README template: swap the service name in the badge URLs and the
+     package link; everything else is shared. -->
 
+[![CI](https://img.shields.io/github/actions/workflow/status/macula-services/mcl-graph/lint-and-test.yml?branch=main&label=CI)](https://github.com/macula-services/mcl-graph/actions/workflows/lint-and-test.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![ghcr.io](https://img.shields.io/badge/ghcr.io-macula--services%2Fmcl-graph-blue.svg)](https://github.com/macula-services/mcl-graph/pkgs/container/mcl-graph)
+[![BEAM](https://img.shields.io/badge/beam-28%2B-A90533?logo=erlang&logoColor=white)](https://www.erlang.org)
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-support-ea4aaa.svg?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/rgfaber)
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/macula-full-dark.svg">
+    <img src="assets/macula-full-light.svg" alt="Macula" width="320">
+  </picture>
+</p>
+---
 **An embeddable relational-graph database as a mesh service.** Each instance
 keeps its own [CozoDB](https://github.com/cozodb/cozo) graph (Datalog over
 RocksDB) on local disk. Callers query it and add to it over the
