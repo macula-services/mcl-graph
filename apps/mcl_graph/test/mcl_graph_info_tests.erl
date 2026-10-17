@@ -25,12 +25,13 @@ info_round_trip_test_() ->
           ?_assertEqual([{text, C} || C <- [<<(?ORG)/binary, "/info">> | Own]],
                         maps:get(capabilities, Reply)),
           ?_assertEqual([], [V || V <- lists:flatten(maps:values(Reply)), is_binary(V)]),
-          %% Floors within the major: macula 14 (identity_dir, macula#76) and the
-          %% mcl_om built on it, 0.38.0; 0.39.0 serves /health on a Unix socket and
-          %% 14.2.1 is the current SDK base (#2). register/1 replying at once and advertising
-          %% after (since mcl_om 0.33.3) is held by mcl_graph_register_tests.
-          ?_assert(at_least(maps:get(mcl_om_version, Reply), [0, 39, 0])),
-          ?_assert(at_least(maps:get(macula_version, Reply), [14, 2, 1]))]
+          %% Floors, not exact minors: the pairing that matters is mcl_om 1.0 or
+          %% later WITH macula 15.6 or later, the stable wire the flag day
+          %% (macula-fleet#27) moves every service to. register/1 replying at
+          %% once and advertising after (since mcl_om 0.33.3) is held by
+          %% mcl_graph_register_tests.
+          ?_assert(at_least(maps:get(mcl_om_version, Reply), [1, 0, 0])),
+          ?_assert(at_least(maps:get(macula_version, Reply), [15, 6, 0]))]
      end}.
 
 %% The service must leave `info' to mcl_om: declaring its own refuses boot.
