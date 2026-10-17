@@ -206,9 +206,9 @@ def containers():
     s.edge("M627 320V350")                     # identity key
 
     s.element("b-sys", 260, 100, 480, 220, "mcl-graph service",
-              "[Container: OCI image, OTP 28.4.3 release, mcl_om 0.33.3]",
+              "[Container: OCI image, OTP 28.4.3 release, mcl_om 1.0]",
               ["Five open procedures as mcl-graph/<name> v1, and mcl-om's",
-               "mcl-graph/info (macula 13.0.1). Publishes entity_learned_v1,",
+               "mcl-graph/info (macula 15.6). Publishes entity_learned_v1,",
                "link_learned_v1; subscribes to truth_asserted_v1. From mcl-om:",
                "node identity, pinned station dial, realm claim, provider",
                "grants, /health on 8482. Rust NIF mcl_graph_nif: CozoDB 0.7",
@@ -257,7 +257,7 @@ def components():
                  "identity_spec/0: scope mcl-graph, actions resolve, learn, narrate; 30 days. No store_id/0: storeless."])
 
     # What mcl-om provides
-    s.bound("bound-in", 32, 180, 928, 112, "mcl_om 0.33.3 [library: what every mcl-om service gets]")
+    s.bound("bound-in", 32, 180, 928, 112, "mcl_om 1.0 [library: what every mcl-om service gets]")
     om = [("b-cmp", "identity key", ["/etc/mcl/secrets;", "survives recreate"]),
           ("b-cmp", "station dial", ["pinned seeds + ids;", "{mesh, required}"]),
           ("b-cmp", "realm claim", ["boot claim; a D25", "grant per procedure"]),

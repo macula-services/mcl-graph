@@ -2,7 +2,7 @@
 
 *This exists so any member of the realm can ask what is related to what, and teach it a new relationship, in one call, with the teller recorded beside what it told.*
 
-**Status: 2026-09-29, drawn from the 0.2.0 source** (mcl_om 0.33.3, macula 13.0.1, CozoDB 0.7 through rustler 0.38). Everything here describes code that exists. Two things are drawn dashed: mcl-om's event store wiring, which mcl-graph does not take up, and the placement on beam01, which is planned and not yet in macula-fleet.
+**Status: 2026-10-17** (mcl_om 1.0, macula 15.6, CozoDB 0.7 through rustler 0.38). The model was drawn from the 0.2.0 source; the versions above are the 0.5.0 release's. Everything here describes code that exists. Two things are drawn dashed: mcl-om's event store wiring, which mcl-graph does not take up, and the placement on beam01, which is planned and not yet in macula-fleet.
 
 `mcl-graph` is an embeddable relational-graph database as a mesh service. Each instance keeps its own [CozoDB](https://github.com/cozodb/cozo) graph (Datalog over RocksDB) on local disk, answers link and entity lookups over it, learns new links from callers and from `truth_asserted` facts, and publishes what it learns. It is an `mcl-om` service: one OTP release in one OCI container, with its node identity, pinned outbound station dial, realm identity claim, provider grants, `mcl-graph/info` and `/health` coming from [`mcl-om`](https://github.com/macula-services/mcl-om).
 
