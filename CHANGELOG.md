@@ -3,8 +3,6 @@
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/).
 
-- **Rebuilt on macula 14.8.2** (refused dials back off further each time, macula#95).
-
 ## 0.5.0 - 2026-10-17
 
 - **Wire 1.0: on macula 15.6 and mcl_om 1.0** (macula-fleet#27). macula 15 neither reads a 14 node's frames nor completes a handshake with it, so the fleet moves across in one flag day rather than node by node. mcl_om 1.0 is this service on the new wire: no function it calls moved or changed arity. `mcl_om ~> 0.x` takes any 0.x, so a 0.43 on macula 15 would have rolled the live 0.10.3 fleet on its next build; it names 1.0, which is outside that range.
@@ -16,6 +14,10 @@ Versioning: [SemVer](https://semver.org/).
 ## 0.4.3 - 2026-10-14
 
 - **Rebuilt on mcl_om 0.40** (mcl-om#25): a lapsed provider delegation claims again and comes back without a restart, and `/health` shows each authorization's `not_after_ms`, degraded as `expiring` with a third or less of its life left.
+
+## 0.4.2 - 2026-10-11
+
+- **Rebuilt on macula 14.8.2** (refused dials back off further each time, macula#95).
 
 ## 0.4.1 - 2026-10-10
 
