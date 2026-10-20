@@ -160,10 +160,22 @@ the_image_is_signed_by_the_pinned_attest_workflow_test() ->
                  pinned(W, "^\\s+id: (push)\\n\\s+uses: docker/build-push-action@")).
 
 %% Every action a workflow runs is pinned by full commit: a tag moves.
+%%
+%% A LOCAL call is the exception, and it is not a loophole: `uses:
+%% ./.github/workflows/lint-and-test.yml' is that file at the commit the
+%% workflow runs from, so it cannot drift to a version nobody tested (the test
+%% gate added one, which turned this test red on every repository that carries
+%% it).
 every_action_is_pinned_by_commit_test() ->
     Unpinned = [{W, U} || W <- [".github/workflows/build-push.yml", ".github/workflows/lint-and-test.yml"],
-                          U <- uses(W), nomatch =:= re:run(U, <<"@[0-9a-f]{40}$">>)],
+                          U <- uses(W), not local(U), nomatch =:= re:run(U, <<"@[0-9a-f]{40}$">>)],
     ?assertEqual([], Unpinned).
+
+%% A reusable workflow kept in this repository: pinned by the commit by
+%% construction, so it has no sha to carry.
+local(<<"./", _/binary>>) -> true;
+local(<<".", _/binary>>) -> true;
+local(_) -> false.
 
 uses(Workflow) ->
     case re:run(read(Workflow), <<"^\\s+(?:-\\s+)?uses:\\s+(\\S+)">>,
