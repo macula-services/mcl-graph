@@ -173,14 +173,7 @@ fn term_to_json(term: Term) -> Result<serde_json::Value, String> {
         return Ok(serde_json::Value::String(term.atom_to_string().map_err(|_| "undecodable atom".to_string())?));
     }
     if term.is_number() {
-        if let Ok(i) = term.decode::<i64>() {
-            return Ok(serde_json::Value::Number(i.into()));
-        }
-        if let Ok(f) = term.decode::<f64>() {
-            if let Some(n) = serde_json::Number::from_f64(f) {
-                return Ok(serde_json::Value::Number(n));
-            }
-        }
+        return Ok(number_to_json(term));
     }
     if term.is_binary() {
         let bin: Binary = term.decode().map_err(|_| "undecodable binary".to_string())?;
@@ -209,6 +202,19 @@ fn term_to_json(term: Term) -> Result<serde_json::Value, String> {
         return Ok(serde_json::Value::Object(map));
     }
     Ok(serde_json::Value::Null)
+}
+
+/// Integers stay integers; a float JSON cannot represent (NaN, infinity) falls
+/// through to `null`, exactly as `term_to_json` does for anything it cannot
+/// encode.
+fn number_to_json(term: Term) -> serde_json::Value {
+    if let Ok(i) = term.decode::<i64>() {
+        return serde_json::Value::Number(i.into());
+    }
+    term.decode::<f64>()
+        .ok()
+        .and_then(serde_json::Number::from_f64)
+        .map_or(serde_json::Value::Null, serde_json::Value::Number)
 }
 
 fn json_to_term<'a>(env: Env<'a>, value: &serde_json::Value) -> Term<'a> {

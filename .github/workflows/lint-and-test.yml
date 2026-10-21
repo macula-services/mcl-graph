@@ -67,3 +67,14 @@ jobs:
       # Keep it gating: it is the M3 bar, and it reads the macula and mcl_om
       # calls the tests stub.
       - run: rebar3 dialyzer
+      # The crate's structural floor. clippy.toml sets the nesting, cognitive
+      # complexity and function-length limits and Cargo.toml's [lints.clippy]
+      # denies all three, so this step gates them; `-D warnings` makes any other
+      # clippy finding fatal too. The image pins rustc but ships the minimal
+      # profile, so the matching clippy component is added here -- the same
+      # pinned toolchain, not a floating one. The registry and target cache
+      # above is shared with this run.
+      - name: Install clippy for the pinned toolchain
+        run: rustup component add clippy
+      - run: cargo clippy --all-targets -- -D warnings
+        working-directory: native/mcl_graph_nif
