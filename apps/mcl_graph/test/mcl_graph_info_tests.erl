@@ -30,8 +30,8 @@ info_round_trip_test_() ->
           %% (macula-fleet#27) moves every service to. register/1 replying at
           %% once and advertising after (since mcl_om 0.33.3) is held by
           %% mcl_graph_register_tests.
-          ?_assert(at_least(maps:get(mcl_om_version, Reply), [1, 0, 0])),
-          ?_assert(at_least(maps:get(macula_version, Reply), [15, 6, 0]))]
+          ?_assert(at_least(maps:get(mcl_om_version, Reply), [1, 4, 0])),
+          ?_assert(at_least(maps:get(macula_version, Reply), [16, 0, 0]))]
      end}.
 
 %% The service must leave `info' to mcl_om: declaring its own refuses boot.

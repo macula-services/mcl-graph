@@ -22,7 +22,7 @@ RocksDB) on local disk. Callers query it and add to it over the
 knowledge graph from many instances, either by calling `resolve_link` on each
 one or by subscribing to the facts they publish.
 
-It runs on macula 15 through [mcl_om](https://hex.pm/packages/mcl_om) 1.0, with
+It runs on macula 16 through [mcl_om](https://hex.pm/packages/mcl_om) 1.4, with
 post-quantum signatures on every call and fact. The architecture, as a C4 model,
 is in [architecture/](architecture/README.md).
 
