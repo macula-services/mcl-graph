@@ -25,9 +25,9 @@ info_round_trip_test_() ->
           ?_assertEqual([{text, C} || C <- [<<(?ORG)/binary, "/info">> | Own]],
                         maps:get(capabilities, Reply)),
           ?_assertEqual([], [V || V <- lists:flatten(maps:values(Reply)), is_binary(V)]),
-          %% Floors, not exact minors: the pairing that matters is mcl_om 1.0 or
-          %% later WITH macula 15.6 or later, the stable wire the flag day
-          %% (macula-fleet#27) moves every service to. register/1 replying at
+          %% Floors, not exact minors: the pairing that matters is mcl_om 1.4 or
+          %% later WITH macula 16.0 or later: 16 keeps wire 1.0, the wire the flag
+          %% day (macula-fleet#27) moved every service to. register/1 replying at
           %% once and advertising after (since mcl_om 0.33.3) is held by
           %% mcl_graph_register_tests.
           ?_assert(at_least(maps:get(mcl_om_version, Reply), [1, 4, 0])),

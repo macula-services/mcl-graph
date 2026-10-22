@@ -66,7 +66,7 @@
 <text class="t-name" x="276" y="128">mcl-graph service</text>
 <text class="t-type" x="276" y="146">[Container: OCI image, OTP 28.4.3 release, mcl_om 1.0]</text>
 <text class="t-desc" x="276" y="170">Five open procedures as mcl-graph/&lt;name&gt; v1, and mcl-om's</text>
-<text class="t-desc" x="276" y="186">mcl-graph/info (macula 15.6). Publishes entity_learned_v1,</text>
+<text class="t-desc" x="276" y="186">mcl-graph/info (macula 16). Publishes entity_learned_v1,</text>
 <text class="t-desc" x="276" y="202">link_learned_v1; subscribes to truth_asserted_v1. From mcl-om:</text>
 <text class="t-desc" x="276" y="218">node identity, pinned station dial, realm claim, provider</text>
 <text class="t-desc" x="276" y="234">grants, /health on 8482. Rust NIF mcl_graph_nif: CozoDB 0.7</text>

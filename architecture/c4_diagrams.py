@@ -208,7 +208,7 @@ def containers():
     s.element("b-sys", 260, 100, 480, 220, "mcl-graph service",
               "[Container: OCI image, OTP 28.4.3 release, mcl_om 1.0]",
               ["Five open procedures as mcl-graph/<name> v1, and mcl-om's",
-               "mcl-graph/info (macula 15.6). Publishes entity_learned_v1,",
+               "mcl-graph/info (macula 16). Publishes entity_learned_v1,",
                "link_learned_v1; subscribes to truth_asserted_v1. From mcl-om:",
                "node identity, pinned station dial, realm claim, provider",
                "grants, /health on 8482. Rust NIF mcl_graph_nif: CozoDB 0.7",
