@@ -6,7 +6,7 @@
 
 `mcl-graph` is an embeddable relational-graph database as a mesh service. Each instance keeps its own [CozoDB](https://github.com/cozodb/cozo) graph (Datalog over RocksDB) on local disk, answers link and entity lookups over it, learns new links from callers and from `truth_asserted` facts, and publishes what it learns. It is an `mcl-om` service: one OTP release in one OCI container, with its node identity, pinned outbound station dial, realm identity claim, provider grants, `mcl-graph/info` and `/health` coming from [`mcl-om`](https://github.com/macula-services/mcl-om).
 
-Legend used in all three diagrams: the amber box is the element in scope, blue boxes are people, grey boxes are external, and dashed boxes are not used by this deployment (mcl-om's event store). Dashed boundaries are deployment and grouping boundaries; the beam01 one is the box it is deployed on.
+Legend used in all three diagrams: the amber box is the element in scope, blue boxes are people, grey boxes are external, and dashed boxes are not used by this deployment (mcl-om's event store). Dashed boundaries are deployment and grouping boundaries; the outer one is the container it runs in.
 
 ## Level 1: system context
 
@@ -41,7 +41,7 @@ Legend used in all three diagrams: the amber box is the element in scope, blue b
 
 **The NIF is built for the baseline x86-64 CPU.** `native/build-nif.sh` sets `RUSTFLAGS="-C target-cpu=x86-64"` on x86_64, never the build machine's CPU. cozorocks turns on `-mavx2` whenever Rust's target features include it, and the beam boxes are Celeron J4105s without AVX2: a NIF built for the build host loads there and dies with SIGILL on the first RocksDB call. There is no pure-Erlang fallback; a failed NIF build fails the compile.
 
-**Placement.** beam01, a beam lab box, running the image by digest pinned in macula-fleet (`edge/scripts/docker-compose.mcl-graph.yml`, 0.5.0) and reconciled from `edge/beam01.lab`, with `/bulk0/mcl-graph` on its bulk drive. Host networking because stations are reachable over IPv6 and a default bridge has none. The service's own compose file (`deploy/docker-compose.yml`) carries what the service knows about itself; which box, station, realm and digest belong to macula-fleet.
+**Placement.** The image runs by digest pinned in macula-fleet (`edge/scripts/docker-compose.mcl-graph.yml`, 0.5.0), with `/bulk0/mcl-graph` on the host's bulk drive. Host networking because stations are reachable over IPv6 and a default bridge has none. The service's own compose file (`deploy/docker-compose.yml`) carries what the service knows about itself; which box, station, realm and digest belong to macula-fleet.
 
 **What mcl-om gives it, and what it leaves.** From mcl-om: the node key on the identity volume, the pinned station dial (`MACULA_STATION_SEEDS` paired index for index with `MACULA_STATION_NODE_IDS`; with `{mesh, required}` a boot missing the realm, its key or the pinned stations stops and names each one), the boot identity claim, capability adverts gated on the realm's grants, `mcl-graph/info`, `/health`, publishing (`mcl_om_pubsub`), the mesh handles the subscriber uses (`mcl_om:mesh_handles/0`) and the ownership proof check (`mcl_om_ownership_proof`). mcl-om would also start a reckon-db event store for a service that exports `store_id/0`; `mcl_graph_service` does not, so no event store runs. The graph's state is CozoDB, opened by this repo's own NIF.
 

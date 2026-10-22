@@ -192,7 +192,7 @@ def context():
 def containers():
     s = Svg(1000, 640, "mcl-graph containers")
 
-    s.bound("bound", 220, 40, 560, 560, "beam01.lab [docker, host networking]")
+    s.bound("bound", 220, 40, 560, 560, "container [docker, host networking]")
     s.bound("bound-in", 236, 72, 528, 500, "mcl-graph [Software system, mcl-om service]")
 
     # Edges

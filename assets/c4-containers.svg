@@ -51,7 +51,7 @@
 <rect class="bg" x="0" y="0" width="1000" height="640"/>
 
 <rect class="bound" x="220" y="40" width="560" height="560" rx="12"/>
-<text class="t-bound" x="236" y="62">beam01.lab [docker, host networking]</text>
+<text class="t-bound" x="236" y="62">container [docker, host networking]</text>
 <rect class="bound-in" x="236" y="72" width="528" height="500" rx="10"/>
 <text class="t-bound" x="252" y="94">mcl-graph [Software system, mcl-om service]</text>
 <path class="edge" d="M200 136H260" marker-end="url(#a)"/>
