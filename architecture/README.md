@@ -2,11 +2,11 @@
 
 *This exists so any member of the realm can ask what is related to what, and teach it a new relationship, in one call, with the teller recorded beside what it told.*
 
-**Status: 2026-10-17** (mcl_om 1.0, macula 15.6, CozoDB 0.7 through rustler 0.38). The model was drawn from the 0.2.0 source; the versions above are the 0.5.0 release's. Everything here describes code that exists. Two things are drawn dashed: mcl-om's event store wiring, which mcl-graph does not take up, and the placement on beam01, which is planned and not yet in macula-fleet.
+**Status: 2026-10-22, mcl-graph 0.5.0** (mcl_om 1.4, macula 16, CozoDB 0.7 through rustler 0.38). The model was drawn from the 0.2.0 source and checked against the current tree; everything here describes code that exists. One thing is drawn dashed: mcl-om's event store wiring, which mcl-graph does not take up.
 
 `mcl-graph` is an embeddable relational-graph database as a mesh service. Each instance keeps its own [CozoDB](https://github.com/cozodb/cozo) graph (Datalog over RocksDB) on local disk, answers link and entity lookups over it, learns new links from callers and from `truth_asserted` facts, and publishes what it learns. It is an `mcl-om` service: one OTP release in one OCI container, with its node identity, pinned outbound station dial, realm identity claim, provider grants, `mcl-graph/info` and `/health` coming from [`mcl-om`](https://github.com/macula-services/mcl-om).
 
-Legend used in all three diagrams: the amber box is the element in scope, blue boxes are people, grey boxes are external, and dashed boxes are not used by this deployment (mcl-om's event store). Dashed boundaries are deployment and grouping boundaries; the beam01 one is planned.
+Legend used in all three diagrams: the amber box is the element in scope, blue boxes are people, grey boxes are external, and dashed boxes are not used by this deployment (mcl-om's event store). Dashed boundaries are deployment and grouping boundaries; the beam01 one is the box it is deployed on.
 
 ## Level 1: system context
 
@@ -33,7 +33,7 @@ Legend used in all three diagrams: the amber box is the element in scope, blue b
 
 | Container | Technology | Responsibility |
 | --- | --- | --- |
-| mcl-graph service | OCI image (`ghcr.io/macula-services/mcl-graph`, deployed by digest), OTP 28.4.3 release `mcl_graph`, `mcl_om_service` behaviour, the Rust NIF `mcl_graph_nif` (CozoDB 0.7, rustler 0.38) in `priv/` | Five procedures as `mcl-graph/<name>` v1 plus mcl-om's `mcl-graph/info`; publishes `entity_learned_v1` and `link_learned_v1`; subscribes to `truth_asserted_v1`. Health on 8482, host networking |
+| mcl-graph service | OCI image (`ghcr.io/macula-services/mcl-graph`, deployed by digest), OTP 28.4.3 release `mcl_graph`, `mcl_om_service` behaviour, the Rust NIF `mcl_graph_nif` (CozoDB 0.7, rustler 0.38) in `priv/` | Five procedures as `mcl-graph/<name>` v1 plus mcl-om's `mcl-graph/info`; publishes `entity_learned_v1` and `link_learned_v1`; subscribes to `truth_asserted_v1`. Health on the Unix socket `/run/mcl/health.sock`, host networking |
 | Graph data | Bind mount `${MCL_GRAPH_DATA:-/bulk0/mcl-graph}` at `/data` (`MCL_DATA_DIR`) | CozoDB's RocksDB directory: the `entities` and `links` relations. Without the mount every recreate forgets the graph |
 | Identity key | Named volume `mcl-graph-secrets` at `/etc/mcl/secrets` | The node key mcl-om keeps at `identity.key`; the node id, which signs every fact and advertisement, survives a container recreate |
 
@@ -41,7 +41,7 @@ Legend used in all three diagrams: the amber box is the element in scope, blue b
 
 **The NIF is built for the baseline x86-64 CPU.** `native/build-nif.sh` sets `RUSTFLAGS="-C target-cpu=x86-64"` on x86_64, never the build machine's CPU. cozorocks turns on `-mavx2` whenever Rust's target features include it, and the beam boxes are Celeron J4105s without AVX2: a NIF built for the build host loads there and dies with SIGILL on the first RocksDB call. There is no pure-Erlang fallback; a failed NIF build fails the compile.
 
-**Placement (planned).** beam01, a beam lab box, running the image by digest pinned in macula-fleet and reconciled from there, with `/bulk0/mcl-graph` on its bulk drive. Host networking because stations are reachable over IPv6 and a default bridge has none. The service's own compose file (`deploy/docker-compose.yml`) carries what the service knows about itself; which box, station, realm and digest belong to macula-fleet.
+**Placement.** beam01, a beam lab box, running the image by digest pinned in macula-fleet (`edge/scripts/docker-compose.mcl-graph.yml`, 0.5.0) and reconciled from `edge/beam01.lab`, with `/bulk0/mcl-graph` on its bulk drive. Host networking because stations are reachable over IPv6 and a default bridge has none. The service's own compose file (`deploy/docker-compose.yml`) carries what the service knows about itself; which box, station, realm and digest belong to macula-fleet.
 
 **What mcl-om gives it, and what it leaves.** From mcl-om: the node key on the identity volume, the pinned station dial (`MACULA_STATION_SEEDS` paired index for index with `MACULA_STATION_NODE_IDS`; with `{mesh, required}` a boot missing the realm, its key or the pinned stations stops and names each one), the boot identity claim, capability adverts gated on the realm's grants, `mcl-graph/info`, `/health`, publishing (`mcl_om_pubsub`), the mesh handles the subscriber uses (`mcl_om:mesh_handles/0`) and the ownership proof check (`mcl_om_ownership_proof`). mcl-om would also start a reckon-db event store for a service that exports `store_id/0`; `mcl_graph_service` does not, so no event store runs. The graph's state is CozoDB, opened by this repo's own NIF.
 
@@ -74,7 +74,6 @@ Legend used in all three diagrams: the amber box is the element in scope, blue b
 
 ## Open questions
 
-- [ ] macula-fleet `origin/main` (72bca80, 2026-09-29) registers health port 8482 for mcl-graph in `PORTS.md` and carries no mcl-graph deployment yet. Which file will carry the beam01 placement, and which station does it pin?
 - [ ] macula-mcp's README and `mesh_call` description say `learn_link` "ignores an invalid" ownership proof. Since the refusal fix it refuses one, with its reason, and learns nothing. That text belongs to macula-mcp: [macula-io/macula-mcp#17](https://github.com/macula-io/macula-mcp/issues/17).
 
 ## Editing the diagrams

@@ -58,7 +58,7 @@
 <text class="t-desc" x="46" y="122">Six callbacks. capabilities/0: the five desks as mcl-graph/&lt;desk&gt; v1, handler {Desk, []}, auth =&gt; open.</text>
 <text class="t-desc" x="46" y="138">identity_spec/0: scope mcl-graph, actions resolve, learn, narrate; 30 days. No store_id/0: storeless.</text>
 <rect class="bound-in" x="32" y="180" width="928" height="112" rx="10"/>
-<text class="t-bound" x="48" y="202">mcl_om 1.0 [library: what every mcl-om service gets]</text>
+<text class="t-bound" x="48" y="202">mcl_om 1.4 [library: what every mcl-om service gets]</text>
 <rect class="b-cmp" x="48" y="208" width="144" height="68" rx="8"/>
 <text class="t-code t-small" x="60" y="228">identity key</text>
 <text class="t-desc" x="60" y="248">/etc/mcl/secrets;</text>
@@ -74,7 +74,7 @@
 <rect class="b-cmp" x="498" y="208" width="144" height="68" rx="8"/>
 <text class="t-code t-small" x="510" y="228">info, /health</text>
 <text class="t-desc" x="510" y="248">mcl-graph/info;</text>
-<text class="t-desc" x="510" y="264">/health on 8482</text>
+<text class="t-desc" x="510" y="264">/health, Unix socket</text>
 <rect class="b-cmp" x="648" y="208" width="144" height="68" rx="8"/>
 <text class="t-code t-small" x="660" y="228">ownership proof</text>
 <text class="t-desc" x="660" y="248">v2 verify, used</text>

@@ -192,7 +192,7 @@ def context():
 def containers():
     s = Svg(1000, 640, "mcl-graph containers")
 
-    s.bound("bound", 220, 40, 560, 560, "beam01.lab [planned: beam lab box, host networking]")
+    s.bound("bound", 220, 40, 560, 560, "beam01.lab [docker, host networking]")
     s.bound("bound-in", 236, 72, 528, 500, "mcl-graph [Software system, mcl-om service]")
 
     # Edges
@@ -206,14 +206,15 @@ def containers():
     s.edge("M627 320V350")                     # identity key
 
     s.element("b-sys", 260, 100, 480, 220, "mcl-graph service",
-              "[Container: OCI image, OTP 28.4.3 release, mcl_om 1.0]",
+              "[Container: OCI image, OTP 28.4.3 release, mcl_om 1.4]",
               ["Five open procedures as mcl-graph/<name> v1, and mcl-om's",
                "mcl-graph/info (macula 16). Publishes entity_learned_v1,",
                "link_learned_v1; subscribes to truth_asserted_v1. From mcl-om:",
                "node identity, pinned station dial, realm claim, provider",
-               "grants, /health on 8482. Rust NIF mcl_graph_nif: CozoDB 0.7",
-               "(rustler 0.38), built for baseline x86-64 (no AVX2).",
-               "Storeless for mcl-om: no reckon-db is started."])
+               "grants, /health on the Unix socket /run/mcl/health.sock.",
+               "Rust NIF mcl_graph_nif: CozoDB 0.7 (rustler 0.38), built",
+               "for baseline x86-64 (no AVX2). Storeless for mcl-om: no",
+               "reckon-db is started."])
 
     s.element("b-cmp", 260, 350, 225, 120, "Graph data", "[bind mount]",
               ["/bulk0/mcl-graph at /data:", "CozoDB's RocksDB files,", "entities and links"])
@@ -257,11 +258,11 @@ def components():
                  "identity_spec/0: scope mcl-graph, actions resolve, learn, narrate; 30 days. No store_id/0: storeless."])
 
     # What mcl-om provides
-    s.bound("bound-in", 32, 180, 928, 112, "mcl_om 1.0 [library: what every mcl-om service gets]")
+    s.bound("bound-in", 32, 180, 928, 112, "mcl_om 1.4 [library: what every mcl-om service gets]")
     om = [("b-cmp", "identity key", ["/etc/mcl/secrets;", "survives recreate"]),
           ("b-cmp", "station dial", ["pinned seeds + ids;", "{mesh, required}"]),
           ("b-cmp", "realm claim", ["boot claim; a D25", "grant per procedure"]),
-          ("b-cmp", "info, /health", ["mcl-graph/info;", "/health on 8482"]),
+          ("b-cmp", "info, /health", ["mcl-graph/info;", "/health, Unix socket"]),
           ("b-cmp", "ownership proof", ["v2 verify, used", "by learn_link"]),
           ("b-later", "event store", ["store_id/0: not", "used by mcl-graph"])]
     for i, (cls, name, desc) in enumerate(om):
