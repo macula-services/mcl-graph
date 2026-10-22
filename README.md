@@ -28,10 +28,12 @@ is in [architecture/](architecture/README.md).
 
 ## Mesh surface
 
-Procedures, reached as `mcl-graph/<name>`. All of them are open to any member
-of the realm, and the graph is a commons: nothing limits how much a member adds.
-A caller becomes reachable only after the realm has admitted the `mcl-graph`
-org. Until then the node is healthy and nothing can reach it.
+Procedures, reached as `mcl-graph/<name>`. Each of its own procedures is open to
+any member of the realm, and the graph is a commons: nothing limits how much a
+member adds. `mcl-om` adds `mcl-graph/info` and `mcl-graph/get_limits` to every
+service, both open, and `capabilities/0` is the list. A caller becomes reachable
+only after the realm has admitted the `mcl-graph` org. Until then the node is
+healthy and nothing can reach it.
 
 | Procedure | Parameters | Returns |
 |---|---|---|
@@ -41,6 +43,7 @@ org. Until then the node is healthy and nothing can reach it.
 | `narrate_entity` | `entity_id` | `entity_id`, `prose` |
 | `narrate_link` | same as `resolve_link` | `subject`, `prose` |
 | `info` | none | name, version, description, org, node id, health, the procedures above (added by mcl_om to every service) |
+| `get_limits` | optionally `procedure` | that procedure's guard stats, or those of every declared procedure (added by mcl_om to every service) |
 
 Facts, on app-tier topics under the graph's org, for example
 `io.macula/mcl-graph/graph/knowledge/link_learned_v1`:

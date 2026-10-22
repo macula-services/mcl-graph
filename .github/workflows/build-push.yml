@@ -35,7 +35,7 @@ on:
 # :latest; without this, three quick commits run three builds that finish in
 # whatever order the runners please, and :latest ends up being whichever
 # finished LAST, not whichever was pushed last. A sibling service hit exactly
-# that live, when boxes still followed :latest.
+# that live, back when boxes still followed the floating tag.
 concurrency:
   group: build-and-push-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}

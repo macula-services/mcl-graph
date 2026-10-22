@@ -64,15 +64,15 @@
 <path class="edge" d="M627 320V350" marker-end="url(#a)"/>
 <rect class="b-sys" x="260" y="100" width="480" height="220" rx="10"/>
 <text class="t-name" x="276" y="128">mcl-graph service</text>
-<text class="t-type" x="276" y="146">[Container: OCI image, OTP 28.4.3 release, mcl_om 1.4]</text>
-<text class="t-desc" x="276" y="170">Five open procedures as mcl-graph/&lt;name&gt; v1, and mcl-om's</text>
-<text class="t-desc" x="276" y="186">mcl-graph/info (macula 16). Publishes entity_learned_v1,</text>
-<text class="t-desc" x="276" y="202">link_learned_v1; subscribes to truth_asserted_v1. From mcl-om:</text>
-<text class="t-desc" x="276" y="218">node identity, pinned station dial, realm claim, provider</text>
-<text class="t-desc" x="276" y="234">grants, /health on the Unix socket /run/mcl/health.sock.</text>
-<text class="t-desc" x="276" y="250">Rust NIF mcl_graph_nif: CozoDB 0.7 (rustler 0.38), built</text>
-<text class="t-desc" x="276" y="266">for baseline x86-64 (no AVX2). Storeless for mcl-om: no</text>
-<text class="t-desc" x="276" y="282">reckon-db is started.</text>
+<text class="t-type" x="276" y="146">[Container: OCI image, OTP 28.4.3 release]</text>
+<text class="t-desc" x="276" y="170">Its own five procedures as mcl-graph/&lt;name&gt; v1; mcl-om</text>
+<text class="t-desc" x="276" y="186">adds mcl-graph/info and get_limits, both open. Publishes</text>
+<text class="t-desc" x="276" y="202">entity_learned_v1, link_learned_v1; subscribes to</text>
+<text class="t-desc" x="276" y="218">truth_asserted_v1. From mcl-om: node identity, pinned</text>
+<text class="t-desc" x="276" y="234">station dial, realm claim, provider grants, /health on</text>
+<text class="t-desc" x="276" y="250">the Unix socket /run/mcl/health.sock. Rust NIF mcl_graph_nif:</text>
+<text class="t-desc" x="276" y="266">CozoDB 0.7 (rustler 0.38), built for baseline x86-64 (no</text>
+<text class="t-desc" x="276" y="282">AVX2). Storeless for mcl-om: no reckon-db is started.</text>
 <rect class="b-cmp" x="260" y="350" width="225" height="120" rx="10"/>
 <text class="t-name" x="276" y="378">Graph data</text>
 <text class="t-type" x="276" y="396">[bind mount]</text>

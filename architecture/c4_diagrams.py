@@ -159,7 +159,7 @@ def context():
               ["One instance's graph (CozoDB):", "resolves, learns with", "provenance, narrates, and",
                "publishes what it learns"])
     s.element("b-ext", 750, 200, 230, 130, "Any realm member", "[External: mesh callers]",
-              ["Every procedure is open;", "the verified caller is", "recorded as provenance"])
+              ["Its own procedures are open;", "the verified caller is", "recorded as provenance"])
 
     s.element("b-ext", 230, 440, 250, 110, "macula-station", "[External system]",
               ["Pinned home station(s);", "carries every call and fact", "to and from this node"])
@@ -206,15 +206,15 @@ def containers():
     s.edge("M627 320V350")                     # identity key
 
     s.element("b-sys", 260, 100, 480, 220, "mcl-graph service",
-              "[Container: OCI image, OTP 28.4.3 release, mcl_om 1.4]",
-              ["Five open procedures as mcl-graph/<name> v1, and mcl-om's",
-               "mcl-graph/info (macula 16). Publishes entity_learned_v1,",
-               "link_learned_v1; subscribes to truth_asserted_v1. From mcl-om:",
-               "node identity, pinned station dial, realm claim, provider",
-               "grants, /health on the Unix socket /run/mcl/health.sock.",
-               "Rust NIF mcl_graph_nif: CozoDB 0.7 (rustler 0.38), built",
-               "for baseline x86-64 (no AVX2). Storeless for mcl-om: no",
-               "reckon-db is started."])
+              "[Container: OCI image, OTP 28.4.3 release]",
+              ["Its own five procedures as mcl-graph/<name> v1; mcl-om",
+               "adds mcl-graph/info and get_limits, both open. Publishes",
+               "entity_learned_v1, link_learned_v1; subscribes to",
+               "truth_asserted_v1. From mcl-om: node identity, pinned",
+               "station dial, realm claim, provider grants, /health on",
+               "the Unix socket /run/mcl/health.sock. Rust NIF mcl_graph_nif:",
+               "CozoDB 0.7 (rustler 0.38), built for baseline x86-64 (no",
+               "AVX2). Storeless for mcl-om: no reckon-db is started."])
 
     s.element("b-cmp", 260, 350, 225, 120, "Graph data", "[bind mount]",
               ["/bulk0/mcl-graph at /data:", "CozoDB's RocksDB files,", "entities and links"])
@@ -262,7 +262,7 @@ def components():
     om = [("b-cmp", "identity key", ["/etc/mcl/secrets;", "survives recreate"]),
           ("b-cmp", "station dial", ["pinned seeds + ids;", "{mesh, required}"]),
           ("b-cmp", "realm claim", ["boot claim; a D25", "grant per procedure"]),
-          ("b-cmp", "info, /health", ["mcl-graph/info;", "/health, Unix socket"]),
+          ("b-cmp", "info, get_limits", ["mcl-graph/info and", "get_limits; /health sock"]),
           ("b-cmp", "ownership proof", ["v2 verify, used", "by learn_link"]),
           ("b-later", "event store", ["store_id/0: not", "used by mcl-graph"])]
     for i, (cls, name, desc) in enumerate(om):
@@ -284,7 +284,7 @@ def components():
                  "Resubscribes when gone or the pool dies."])
 
     # Desks
-    s.bound("bound-in", 32, 480, 928, 250, "apps/mcl_graph [desks: macula_response handlers, one per procedure]")
+    s.bound("bound-in", 32, 480, 928, 250, "apps/mcl_graph [desks: a macula_response handler per procedure]")
     desks = [("resolve_link", "links out, in or both; up to 8 hops; at most 1000 rows"),
              ("resolve_entity", "attributes, first_seen, source; out and in degree; predicates"),
              ("learn_link", "insert entities, put the link, publish; caller linked asserted"),

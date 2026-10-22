@@ -90,7 +90,7 @@
 <rect class="b-ext" x="750" y="200" width="230" height="130" rx="10"/>
 <text class="t-name" x="766" y="228">Any realm member</text>
 <text class="t-type" x="766" y="246">[External: mesh callers]</text>
-<text class="t-desc" x="766" y="270">Every procedure is open;</text>
+<text class="t-desc" x="766" y="270">Its own procedures are open;</text>
 <text class="t-desc" x="766" y="286">the verified caller is</text>
 <text class="t-desc" x="766" y="302">recorded as provenance</text>
 <rect class="b-ext" x="230" y="440" width="250" height="110" rx="10"/>
