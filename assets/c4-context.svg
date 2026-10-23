@@ -111,7 +111,7 @@
 <text class="t-rel" x="310" y="282" text-anchor="middle">(over the mesh,</text>
 <text class="t-rel" x="310" y="296" text-anchor="middle">optional asserted_by)</text>
 <text class="t-rel" x="690" y="252" text-anchor="middle">resolve, learn,</text>
-<text class="t-rel" x="690" y="282" text-anchor="middle">narrate, info</text>
+<text class="t-rel" x="690" y="282" text-anchor="middle">narrate, info, get_limits</text>
 <text class="t-rel" x="492" y="160" text-anchor="end">publish</text>
 <text class="t-rel" x="492" y="174" text-anchor="end">truth_asserted_v1</text>
 <text class="t-rel" x="684" y="150" text-anchor="end">publishes</text>

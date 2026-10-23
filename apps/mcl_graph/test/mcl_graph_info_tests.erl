@@ -1,11 +1,12 @@
 %% @doc `mcl-graph/info', the procedure mcl_om 0.28 answers for this service with
-%% no code of its own: who it is, its versions and what it advertises.
+%% no code of its own, beside the open `mcl-graph/get_limits': who it is, its
+%% versions and what it advertises.
 %%
 %% Built from this service's real info/0 and its real capabilities/0 with
-%% `info' added the way mcl_om:boot/2 adds it, then sent through macula's own
-%% frame codec, the path a reply takes. What arrives must be text, never bytes,
-%% and name this service, its procedures and the mcl_om / macula pair it was
-%% built with.
+%% `info' and `get_limits' added the way mcl_om:boot/2 adds them, then sent
+%% through macula's own frame codec, the path a reply takes. What arrives must
+%% be text, never bytes, and name this service, its procedures and the mcl_om /
+%% macula pair it was built with.
 -module(mcl_graph_info_tests).
 
 -include_lib("eunit/include/eunit.hrl").

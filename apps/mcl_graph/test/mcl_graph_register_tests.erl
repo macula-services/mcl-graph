@@ -2,9 +2,9 @@
 %%
 %% mcl_om:boot/1 registers the capabilities from the service's start/2 with a
 %% gen_server call of the default 5 s patience. mcl_om up to 0.33.2 advertised
-%% every procedure over the network INSIDE that call, so enough procedures or a
-%% slow station failed the boot on the timeout: mcl-rag's eighteen did on msi00,
-%% 2026-09-29, crash-looping every boot. 0.33.3 replies at once and advertises
+%% all of them over the network INSIDE that call, so enough procedures or a
+%% slow station failed the boot on the timeout: mcl-rag's eighteen did on a lab
+%% box, 2026-09-29, crash-looping every boot. 0.33.3 replies at once and advertises
 %% right after. This holds that behaviour for mcl-graph whatever mcl_om it
 %% resolves, because the floor alone only states a number.
 -module(mcl_graph_register_tests).

@@ -122,7 +122,7 @@ tag(Pin) -> hd(binary:split(Pin, <<"@">>)).
 
 %% THE NIF IS BUILT FOR THE BASELINE x86-64, on purpose. cozorocks compiles
 %% RocksDB with -mavx2 and friends whenever Rust's target features include them,
-%% and the beam boxes are Celeron J4105s without AVX2: an image built for the
+%% and the fleet's small boxes are Celeron J4105s without AVX2: an image built for the
 %% build machine's CPU dies there with SIGILL. build-nif.sh pins the target CPU
 %% instead of inheriting whatever RUSTFLAGS the image or a shell carries.
 the_nif_is_built_for_the_baseline_cpu_test() ->

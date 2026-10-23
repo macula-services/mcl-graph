@@ -65,7 +65,7 @@
 <rect class="b-sys" x="260" y="100" width="480" height="220" rx="10"/>
 <text class="t-name" x="276" y="128">mcl-graph service</text>
 <text class="t-type" x="276" y="146">[Container: OCI image, OTP 28.4.3 release]</text>
-<text class="t-desc" x="276" y="170">Its own five procedures as mcl-graph/&lt;name&gt; v1; mcl-om</text>
+<text class="t-desc" x="276" y="170">Five procedures of its own as mcl-graph/&lt;name&gt; v1; mcl-om</text>
 <text class="t-desc" x="276" y="186">adds mcl-graph/info and get_limits, both open. Publishes</text>
 <text class="t-desc" x="276" y="202">entity_learned_v1, link_learned_v1; subscribes to</text>
 <text class="t-desc" x="276" y="218">truth_asserted_v1. From mcl-om: node identity, pinned</text>

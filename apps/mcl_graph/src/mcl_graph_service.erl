@@ -32,7 +32,7 @@ start(_Opts) ->
 
 stop(_State) -> ok.
 
-%% Down when the store is not open: every capability would fail. Degraded when
+%% Down when the store is not open: its own capabilities would fail. Degraded when
 %% the truths subscriber is deaf: the graph still answers, but hears nothing.
 health() ->
     health(mcl_graph_store:is_open(), learn_truths_from_mesh:subscribed()).

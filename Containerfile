@@ -43,8 +43,8 @@ COPY apps ./apps
 # ⚠ THE RELEASE MUST CARRY THE NIF. Without it the node boots, mcl_graph_nif
 # fails to load, and mcl_graph_store crash-loops on the fleet; the predecessor
 # shipped exactly that once. Fail here instead. The compile hook builds it
-# through native/build-nif.sh, for the baseline x86-64 CPU (the beam boxes have
-# no AVX2).
+# through native/build-nif.sh, for the baseline x86-64 CPU (the fleet's small
+# boxes have no AVX2).
 RUN rebar3 as prod release \
     && ls _build/prod/rel/mcl_graph/lib/mcl_graph-*/priv/mcl_graph_nif.so
 

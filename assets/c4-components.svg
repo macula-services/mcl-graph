@@ -73,8 +73,8 @@
 <text class="t-desc" x="360" y="264">grant per procedure</text>
 <rect class="b-cmp" x="498" y="208" width="144" height="68" rx="8"/>
 <text class="t-code t-small" x="510" y="228">info, get_limits</text>
-<text class="t-desc" x="510" y="248">mcl-graph/info and</text>
-<text class="t-desc" x="510" y="264">get_limits; /health sock</text>
+<text class="t-desc" x="510" y="248">mcl-graph/info, mcl-graph/get_limits</text>
+<text class="t-desc" x="510" y="264">both open; /health sock</text>
 <rect class="b-cmp" x="648" y="208" width="144" height="68" rx="8"/>
 <text class="t-code t-small" x="660" y="228">ownership proof</text>
 <text class="t-desc" x="660" y="248">v2 verify, used</text>
@@ -142,7 +142,7 @@
 <text class="t-code" x="62" y="968">mcl_graph_nif.so</text>
 <text class="t-type" x="932" y="968" text-anchor="end">[CozoDB 0.7 over RocksDB, DirtyIo]</text>
 <text class="t-desc" x="62" y="990">One cozo::DbInstance behind a mutex: open, run_query, run_script, close. Errors are returned,</text>
-<text class="t-desc" x="62" y="1006">never raised. Built with -C target-cpu=x86-64: the beam boxes' Celeron J4105 has no AVX2.</text>
+<text class="t-desc" x="62" y="1006">never raised. Built with -C target-cpu=x86-64: the fleet's small boxes (Celeron J4105) have no AVX2.</text>
 <rect class="b-ext" x="1000" y="196" width="224" height="90" rx="10"/>
 <text class="t-name" x="1016" y="224">macula-realm</text>
 <text class="t-type" x="1016" y="242">[trust anchor]</text>
@@ -155,7 +155,7 @@
 <text class="t-name" x="1016" y="588">macula-station</text>
 <text class="t-type" x="1016" y="606">[pinned]</text>
 <text class="t-desc" x="1016" y="630">carries the procedures,</text>
-<text class="t-desc" x="1016" y="646">info and every fact</text>
+<text class="t-desc" x="1016" y="646">info, get_limits and every fact</text>
 <rect class="b-ext" x="48" y="1100" width="440" height="64" rx="10"/>
 <text class="t-name" x="64" y="1128">Graph data</text>
 <text class="t-type" x="64" y="1146">[/data, bind mount /bulk0/mcl-graph]</text>

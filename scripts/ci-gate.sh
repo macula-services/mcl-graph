@@ -27,7 +27,7 @@ else
     BUILD_MOUNT=(-v mcl-graph-build:/src/_build)
 fi
 
-# ⚠ host00 is shared. CARGO_BUILD_JOBS caps the NIF's vendored RocksDB build
+# ⚠ the build host is shared. CARGO_BUILD_JOBS caps the NIF's vendored RocksDB build
 # (cozorocks), the one rocksdb build left; a cold one needs a slot from the
 # Supervisor first. The NIF's target/ persists, so it is rarely cold.
 exec podman run --rm --cpus=4 --memory=8g \

@@ -172,7 +172,7 @@ def context():
     s.text("t-rel", 310, 282, "(over the mesh,", anchor="middle")
     s.text("t-rel", 310, 296, "optional asserted_by)", anchor="middle")
     s.text("t-rel", 690, 252, "resolve, learn,", anchor="middle")
-    s.text("t-rel", 690, 282, "narrate, info", anchor="middle")
+    s.text("t-rel", 690, 282, "narrate, info, get_limits", anchor="middle")
     s.text("t-rel", 492, 160, "publish", anchor="end")
     s.text("t-rel", 492, 174, "truth_asserted_v1", anchor="end")
     s.text("t-rel", 684, 150, "publishes", anchor="end")
@@ -207,7 +207,7 @@ def containers():
 
     s.element("b-sys", 260, 100, 480, 220, "mcl-graph service",
               "[Container: OCI image, OTP 28.4.3 release]",
-              ["Its own five procedures as mcl-graph/<name> v1; mcl-om",
+              ["Five procedures of its own as mcl-graph/<name> v1; mcl-om",
                "adds mcl-graph/info and get_limits, both open. Publishes",
                "entity_learned_v1, link_learned_v1; subscribes to",
                "truth_asserted_v1. From mcl-om: node identity, pinned",
@@ -262,7 +262,7 @@ def components():
     om = [("b-cmp", "identity key", ["/etc/mcl/secrets;", "survives recreate"]),
           ("b-cmp", "station dial", ["pinned seeds + ids;", "{mesh, required}"]),
           ("b-cmp", "realm claim", ["boot claim; a D25", "grant per procedure"]),
-          ("b-cmp", "info, get_limits", ["mcl-graph/info and", "get_limits; /health sock"]),
+          ("b-cmp", "info, get_limits", ["mcl-graph/info, mcl-graph/get_limits", "both open; /health sock"]),
           ("b-cmp", "ownership proof", ["v2 verify, used", "by learn_link"]),
           ("b-later", "event store", ["store_id/0: not", "used by mcl-graph"])]
     for i, (cls, name, desc) in enumerate(om):
@@ -306,7 +306,7 @@ def components():
     s.bound("bound-in", 32, 912, 928, 128, "native/mcl_graph_nif [Rust crate, cdylib, rustler 0.38]")
     s.component("b-cmp", 48, 944, 896, 80, "mcl_graph_nif.so", "[CozoDB 0.7 over RocksDB, DirtyIo]",
                 ["One cozo::DbInstance behind a mutex: open, run_query, run_script, close. Errors are returned,",
-                 "never raised. Built with -C target-cpu=x86-64: the beam boxes' Celeron J4105 has no AVX2."])
+                 "never raised. Built with -C target-cpu=x86-64: the fleet's small boxes (Celeron J4105) have no AVX2."])
 
     # External to the container
     s.element("b-ext", 1000, 196, 224, 90, "macula-realm", "[trust anchor]",
@@ -314,7 +314,7 @@ def components():
     s.element("b-ext", 1000, 344, 224, 100, "Truth producers", "[realm members]",
               ["publish truth_asserted_v1"])
     s.element("b-ext", 1000, 560, 224, 104, "macula-station", "[pinned]",
-              ["carries the procedures,", "info and every fact"])
+              ["carries the procedures,", "info, get_limits and every fact"])
     s.element("b-ext", 48, 1100, 440, 64, "Graph data", "[/data, bind mount /bulk0/mcl-graph]", [])
 
     # Edges and labels

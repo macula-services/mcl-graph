@@ -42,7 +42,7 @@ healthy and nothing can reach it.
 | `learn_link` | `subject`, `predicate`, `object`, and optionally `confidence` (default 1.0), `metadata` and `asserted_by` | `link_id`, `entities_new` |
 | `narrate_entity` | `entity_id` | `entity_id`, `prose` |
 | `narrate_link` | same as `resolve_link` | `subject`, `prose` |
-| `info` | none | name, version, description, org, node id, health, the procedures above (added by mcl_om to every service) |
+| `info` | none | name, version, description, org, node id, health, the procedures above (added by mcl_om to every service, as is `get_limits`) |
 | `get_limits` | optionally `procedure` | that procedure's guard stats, or those of every declared procedure (added by mcl_om to every service) |
 
 Facts, on app-tier topics under the graph's org, for example
@@ -96,7 +96,7 @@ The CozoDB NIF (`native/mcl_graph_nif`, Rust) is built from source on every
 compile and needs cargo, cmake and a C++ toolchain (cozorocks compiles its own
 RocksDB). If the NIF fails to build, the compile fails. Nothing falls back. It
 is built for the baseline x86-64 CPU (`native/build-nif.sh`), never the build
-machine's: the beam boxes are Celeron J4105s without AVX2, where a RocksDB
+machine's: the fleet's small boxes are Celeron J4105s without AVX2, where a RocksDB
 built with `-mavx2` dies with SIGILL.
 
 The image builds in the fleet's rocksdb image pair (`macula-ci-otp-rocksdb` /
@@ -138,11 +138,11 @@ missing the realm, its key or the pinned stations stops and names each one.
 
 A `v*` tag publishes `ghcr.io/macula-services/mcl-graph:<version>` and nothing else, signed
 by digest with its SBOM and provenance (macula-ci-images' `attest-image.yml`). A push to
-`main` publishes `:main` and `:<sha>`, which nothing follows, and nothing moves `:latest`.
-The fleet runs a release by digest: macula-fleet's pin-releases workflow finds the signed
-release, verifies it was signed on its tag and pins `<version>@sha256:<digest>`
-(macula-fleet#14, #15), so a green `v*` tag is the deploy. To roll back, revert the pin and
-hold the image there.
+`main` publishes `:main` and `:<sha>`, and no box runs either: the fleet instead pins a
+release by digest, macula-fleet's pin-releases workflow verifying the signed tag and
+writing `<version>@sha256:<digest>` (macula-fleet `edge/gitops/release-targets`:81-82;
+macula-fleet#14, #15), so a green `v*` tag is the deploy. `:latest` stays published as a
+pointer and nothing reads it. To roll back, revert the pin and hold the image there.
 
 `/health` reports `down` when the store is not open. It reports `degraded`
 when the `truth_asserted` subscription is not held: the graph still answers
