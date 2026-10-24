@@ -3,10 +3,11 @@
 %% versions and what it advertises.
 %%
 %% Built from this service's real info/0 and its real capabilities/0 with
-%% `info' and `get_limits' added the way mcl_om:boot/2 adds them, then sent
-%% through macula's own frame codec, the path a reply takes. What arrives must
-%% be text, never bytes, and name this service, its procedures and the mcl_om /
-%% macula pair it was built with.
+%% `info' added the way mcl_om_info:with_info/1 adds it; mcl_om also adds the
+%% open `get_limits' at boot, and this path does not exercise it. The reply is
+%% sent through macula's own frame codec, the path a reply takes. What arrives
+%% must be text, never bytes, and name this service, its procedures and the
+%% mcl_om / macula pair it was built with.
 -module(mcl_graph_info_tests).
 
 -include_lib("eunit/include/eunit.hrl").
