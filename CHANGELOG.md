@@ -15,11 +15,15 @@ mcl_om 1.6 and macula 18.
   a capability that names a handler must name who may call it -- the five desks
   already declare `auth => open`, and that stays the decision -- and a
   subscription must name who may deliver to it. `learn_truths_from_mesh` now
-  subscribes with `sources => members`, which is the contract it always had in
-  prose: any realm member may publish a `truth_asserted` fact. The SDK enforces
-  it on the publisher its link verified, before the fact is learned. Not
-  `{org, _}`, since nothing on this mesh presents an org key yet, and not the
-  `open` opt-out, which would admit a publisher the realm never admitted.
+  subscribes with `sources => members`, which **narrows** the truth topic to
+  publishers the realm admitted: before, the subscription ran no source check
+  at all, so any publisher reached it. The narrowing is the moduledoc's reading
+  -- "any realm member may publish any admissible term" -- which the README
+  contradicted with "any producer may publish one"; neither was enforced, and
+  now the SDK enforces the stricter one on the publisher its link verified,
+  before the fact is learned. Not `{org, _}`, since nothing on this mesh
+  presents an org key yet, and not the `open` opt-out, which would admit a
+  publisher the realm never admitted.
 - **`macula:subscribe/4` is gone; the subscriber passes opts.** macula 18
   removes the four-argument form, so the call is `subscribe/5` with
   `#{sources => members}`.
