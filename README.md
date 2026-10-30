@@ -22,7 +22,7 @@ RocksDB) on local disk. Callers query it and add to it over the
 knowledge graph from many instances, either by calling `resolve_link` on each
 one or by subscribing to the facts they publish.
 
-It runs on macula 16 through [mcl_om](https://hex.pm/packages/mcl_om) 1.4, with
+It runs on macula 18 through [mcl_om](https://hex.pm/packages/mcl_om) 1.6, with
 post-quantum signatures on every call and fact. The architecture, as a C4 model,
 is in [architecture/](architecture/README.md).
 
@@ -52,7 +52,7 @@ Facts, on app-tier topics under the graph's org, for example
 |---|---|---|
 | `entity_learned_v1` | published | `entity_id`, `attributes`, `source`, `learned_at` |
 | `link_learned_v1` | published | `subject`, `predicate`, `object`, `confidence`, `source`, `learned_at` |
-| `truth_asserted_v1` | heard | `subject`, `predicate`, `object`: any producer may publish one for the graph to learn |
+| `truth_asserted_v1` | heard | `subject`, `predicate`, `object`: any realm member may publish one for the graph to learn (the subscription declares `sources => members`) |
 
 Text arrives as text and times are milliseconds since the epoch.
 

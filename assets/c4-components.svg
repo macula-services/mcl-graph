@@ -58,7 +58,7 @@
 <text class="t-desc" x="46" y="122">Six callbacks. capabilities/0: the five desks as mcl-graph/&lt;desk&gt; v1, handler {Desk, []}, auth =&gt; open.</text>
 <text class="t-desc" x="46" y="138">identity_spec/0: scope mcl-graph, actions resolve, learn, narrate; 30 days. No store_id/0: storeless.</text>
 <rect class="bound-in" x="32" y="180" width="928" height="112" rx="10"/>
-<text class="t-bound" x="48" y="202">mcl_om 1.4 [library: what every mcl-om service gets]</text>
+<text class="t-bound" x="48" y="202">mcl_om 1.6 [library: what every mcl-om service gets]</text>
 <rect class="b-cmp" x="48" y="208" width="144" height="68" rx="8"/>
 <text class="t-code t-small" x="60" y="228">identity key</text>
 <text class="t-desc" x="60" y="248">/etc/mcl/secrets;</text>
@@ -94,9 +94,9 @@
 <rect class="b-cmp" x="504" y="344" width="440" height="100" rx="8"/>
 <text class="t-code" x="518" y="368">learn_truths_from_mesh</text>
 <text class="t-type" x="932" y="368" text-anchor="end">[gen_server]</text>
-<text class="t-desc" x="518" y="390">Subscribes to truth_asserted_v1. A verified publisher's</text>
-<text class="t-desc" x="518" y="406">fact goes through learn_link:learn/2 at confidence 0.7.</text>
-<text class="t-desc" x="518" y="422">Resubscribes when gone or the pool dies.</text>
+<text class="t-desc" x="518" y="390">Subscribes to truth_asserted_v1 with sources =&gt; members.</text>
+<text class="t-desc" x="518" y="406">A verified publisher's fact goes through learn_link:learn/2</text>
+<text class="t-desc" x="518" y="422">at confidence 0.7. Resubscribes when gone or the pool dies.</text>
 <rect class="bound-in" x="32" y="480" width="928" height="250" rx="10"/>
 <text class="t-bound" x="48" y="502">apps/mcl_graph [desks: a macula_response handler per procedure]</text>
 <rect class="b-cmp" x="48" y="512" width="896" height="34" rx="8"/>

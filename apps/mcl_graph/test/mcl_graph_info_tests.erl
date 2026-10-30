@@ -27,13 +27,15 @@ info_round_trip_test_() ->
           ?_assertEqual([{text, C} || C <- [<<(?ORG)/binary, "/info">> | Own]],
                         maps:get(capabilities, Reply)),
           ?_assertEqual([], [V || V <- lists:flatten(maps:values(Reply)), is_binary(V)]),
-          %% Floors, not exact minors: the pairing that matters is mcl_om 1.4 or
-          %% later WITH macula 16.0 or later: 16 keeps wire 1.0, the wire the flag
-          %% day (macula-fleet#27) moved every service to. register/1 replying at
+          %% Floors, not exact minors: the pairing that matters is mcl_om 1.6 or
+          %% later WITH macula 18.0 or later. 1.6 refuses a boot whose capability
+          %% names no caller policy and whose subscription names no source class
+          %% (macula#147); 18 keeps wire 1.0, the wire the flag day
+          %% (macula-fleet#27) moved every service to. register/1 replying at
           %% once and advertising after (since mcl_om 0.33.3) is held by
           %% mcl_graph_register_tests.
-          ?_assert(at_least(maps:get(mcl_om_version, Reply), [1, 4, 0])),
-          ?_assert(at_least(maps:get(macula_version, Reply), [16, 0, 0]))]
+          ?_assert(at_least(maps:get(mcl_om_version, Reply), [1, 6, 0])),
+          ?_assert(at_least(maps:get(macula_version, Reply), [18, 0, 0]))]
      end}.
 
 %% The service must leave `info' to mcl_om: declaring its own refuses boot.

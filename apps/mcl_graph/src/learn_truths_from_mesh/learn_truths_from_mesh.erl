@@ -87,10 +87,21 @@ held(Held) ->
 
 %% The pool can die between being found and being used; that is the mesh's
 %% weather, not a fault here, so it is retried rather than spent on restarts.
+%%
+%% `sources => members' IS THE DECLARATION, AND IT MATCHES THIS MODULE: the
+%% contract above is that any realm member may publish a truth_asserted fact,
+%% and macula 18 has no default -- a subscription that names no source class is
+%% refused `{error, {sources, required}}' rather than delivered to by anyone
+%% (macula#147). Not `{org, _}', since nothing on this mesh presents an org key
+%% yet, and not the `open' opt-out, which would let a publisher the realm never
+%% admitted put a fact into the graph. The subscriber's own SDK enforces it on
+%% the publisher its link verified, before on_fact/3 runs.
 subscribe({ok, Pool, Realm}, St) ->
     Topic = mcl_graph_facts:topic(mcl_graph_facts:realm_name(), truth_asserted),
-    subscribed(pool_call(fun() -> macula:subscribe(Pool, Realm, Topic, self()) end), Topic,
-               St#st{pool_mon = erlang:monitor(process, Pool)});
+    subscribed(pool_call(fun() ->
+                             macula:subscribe(Pool, Realm, Topic, self(), #{sources => members})
+                         end),
+               Topic, St#st{pool_mon = erlang:monitor(process, Pool)});
 subscribe({error, mesh_unavailable}, St) ->
     retry(St).
 

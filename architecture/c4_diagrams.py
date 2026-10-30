@@ -258,7 +258,7 @@ def components():
                  "identity_spec/0: scope mcl-graph, actions resolve, learn, narrate; 30 days. No store_id/0: storeless."])
 
     # What mcl-om provides
-    s.bound("bound-in", 32, 180, 928, 112, "mcl_om 1.4 [library: what every mcl-om service gets]")
+    s.bound("bound-in", 32, 180, 928, 112, "mcl_om 1.6 [library: what every mcl-om service gets]")
     om = [("b-cmp", "identity key", ["/etc/mcl/secrets;", "survives recreate"]),
           ("b-cmp", "station dial", ["pinned seeds + ids;", "{mesh, required}"]),
           ("b-cmp", "realm claim", ["boot claim; a D25", "grant per procedure"]),
@@ -279,9 +279,9 @@ def components():
                  "entities and links, one statement per script. run/2:",
                  "every query, one at a time, with :timeout 10."])
     s.component("b-cmp", 504, 344, 440, 100, "learn_truths_from_mesh", "[gen_server]",
-                ["Subscribes to truth_asserted_v1. A verified publisher's",
-                 "fact goes through learn_link:learn/2 at confidence 0.7.",
-                 "Resubscribes when gone or the pool dies."])
+                ["Subscribes to truth_asserted_v1 with sources => members.",
+                 "A verified publisher's fact goes through learn_link:learn/2",
+                 "at confidence 0.7. Resubscribes when gone or the pool dies."])
 
     # Desks
     s.bound("bound-in", 32, 480, 928, 250, "apps/mcl_graph [desks: a macula_response handler per procedure]")

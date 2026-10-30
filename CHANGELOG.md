@@ -3,9 +3,37 @@
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/).
 
-## Unreleased
+## 0.6.0 - 2026-10-30
 
-- **The base library is macula 16** (macula-codebase-checks#4): the floor moves `~> 15.6` to `~> 16.0`, and `mcl_om` from `~> 1.0` to `~> 1.4`, the release whose own base is macula 16. 16.0 keeps wire 1.0, so the graph still answers every wire 1.0 caller. What it adds is the revocation bound (macula#118): an endorsement admits its holder for at most 24 hours, and a gated overlay context must pass `member_standing`. This service gates no overlay and issues no endorsement.
+Refs macula-services/mcl-om#42, the migration of the mcl-* services onto
+mcl_om 1.6 and macula 18.
+
+- **On mcl_om 1.6 and macula 18, and the truth subscriber declares who may
+  feed it.** `mcl_om` moves to `~> 1.6` and `macula` to `~> 18.0`; 18 still
+  speaks wire 1.0, so the graph still answers every wire 1.0 caller. macula 18
+  has no default for either half of the rule (macula-io/macula#147):
+  a capability that names a handler must name who may call it -- the five desks
+  already declare `auth => open`, and that stays the decision -- and a
+  subscription must name who may deliver to it. `learn_truths_from_mesh` now
+  subscribes with `sources => members`, which is the contract it always had in
+  prose: any realm member may publish a `truth_asserted` fact. The SDK enforces
+  it on the publisher its link verified, before the fact is learned. Not
+  `{org, _}`, since nothing on this mesh presents an org key yet, and not the
+  `open` opt-out, which would admit a publisher the realm never admitted.
+- **`macula:subscribe/4` is gone; the subscriber passes opts.** macula 18
+  removes the four-argument form, so the call is `subscribe/5` with
+  `#{sources => members}`.
+- **The base library is macula 18** (macula-codebase-checks#4): the floor moves
+  `~> 15.6` through 16 to `~> 18.0`, and `mcl_om` from `~> 1.0` through 1.4 to
+  `~> 1.6`, the release whose own base is 18. 18 keeps wire 1.0 and carries
+  16's revocation bound (macula#118); this service gates no overlay and issues
+  no endorsement, so nothing there reaches it.
+- 0.5.0 -> 0.6.0 in the three carriers: the relx release, `mcl_graph.app.src`
+  and the service's `info/0`. The docs carrier sweep moved the pins in
+  `README.md`, the architecture status line and fleet placement, and the C4
+  component bound; `assets/c4-components.svg` is regenerated from
+  `architecture/c4_diagrams.py` and read back as an image.
+
 
 ## 0.5.0 - 2026-10-17
 

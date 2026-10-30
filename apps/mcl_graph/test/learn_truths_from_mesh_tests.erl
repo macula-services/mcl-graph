@@ -63,7 +63,7 @@ subscriber_test_() ->
              meck:new(mcl_om, [non_strict]),
              meck:new(macula, [non_strict]),
              meck:expect(mcl_om, mesh_handles, fun() -> {ok, self(), <<0:256>>} end),
-             meck:expect(macula, subscribe, fun(_, _, _, _) -> exit(noproc) end),
+             meck:expect(macula, subscribe, fun(_, _, _, _, _Opts) -> exit(noproc) end),
              {ok, Pid} = learn_truths_from_mesh:start_link(),
              unlink(Pid),
              Pid
@@ -95,7 +95,7 @@ pool_death_test_() ->
              meck:new(macula, [non_strict]),
              meck:expect(mcl_om, mesh_handles,
                          fun() -> {ok, persistent_term:get({?MODULE, pool}), <<0:256>>} end),
-             meck:expect(macula, subscribe, fun(_, _, _, _) -> {ok, make_ref()} end),
+             meck:expect(macula, subscribe, fun(_, _, _, _, _Opts) -> {ok, make_ref()} end),
              {ok, Pid} = learn_truths_from_mesh:start_link(),
              unlink(Pid),
              {Pid, Pool1, Pool2}
@@ -110,6 +110,10 @@ pool_death_test_() ->
      fun({Pid, Pool1, Pool2}) ->
              fun() ->
                      ok = until(fun() -> subscribed_on() =:= [Pool1] end),
+                     %% macula 18 refuses a subscription that names no source
+                     %% class, and this one names the class its contract states:
+                     %% any realm member.
+                     ?assertEqual([#{sources => members}], lists:usort(declared_sources())),
                      persistent_term:put({?MODULE, pool}, Pool2),
                      exit(Pool1, kill),
                      ok = until(fun() -> lists:member(Pool2, subscribed_on()) end),
@@ -120,6 +124,10 @@ pool_death_test_() ->
 
 subscribed_on() ->
     [Pool || {_, {macula, subscribe, [Pool | _]}, {ok, _}} <- meck:history(macula)].
+
+%% The options each subscribe call carried, oldest first.
+declared_sources() ->
+    [Opts || {_, {macula, subscribe, [_, _, _, _, Opts]}, _} <- meck:history(macula)].
 
 until(Check) -> until(Check, 40).
 
